@@ -1,0 +1,8 @@
+[package]
+name = "misel"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+combine = {version = "4.6.0", features=["regex"]}
+regex = "1"
