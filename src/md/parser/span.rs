@@ -25,12 +25,12 @@ parser! {
 }
 #[test]
 fn ts_link() {
-    let src = "[https://example.com](example)";
+    let src = "[example](https://example.com)";
     let result = link().easy_parse(src);
     assert_eq!(
         result,
         Ok((
-            Span::Link("https://example.com".to_owned(), "example".to_owned()),
+            Span::Link("example".to_owned(), "https://example.com".to_owned()),
             ""
         ))
     );
