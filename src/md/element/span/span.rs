@@ -13,7 +13,7 @@ pub enum Span {
 impl Html for Span {
     fn html(&self) -> String {
         match self {
-            Span::Link(src, label) => format!("<a href=\"{}\">{}</a>", src, label),
+            Span::Link(label, src) => format!("<a href=\"{}\">{}</a>", src, label),
             Span::Emphasis(Emphasis::Strong(value)) => format!("<strong>{}</strong>", value),
             Span::Emphasis(Emphasis::Emphasis(value)) => format!("<em>{}</em>", value),
             Span::Code(src) => format!("<span>{}</span>", src),
@@ -48,7 +48,7 @@ fn ts_emphasis_emphasis_to_html() {
 #[test]
 fn ts_link_to_html() {
     assert_eq!(
-        Span::Link("https://example.com".to_owned(), "link".to_owned()).html(),
+        Span::Link("link".to_owned(), "https://example.com".to_owned()).html(),
         r#"<a href="https://example.com">link</a>"#.to_owned(),
     );
 }
@@ -81,8 +81,8 @@ impl PartialEq for Span {
 #[test]
 fn ts_eq() {
     assert_eq!(
-        Span::Link("https://example.com".to_owned(), "link".to_owned()),
-        Span::Link("https://example.com".to_owned(), "link".to_owned()),
+        Span::Link("link".to_owned(), "https://example.com".to_owned()),
+        Span::Link("link".to_owned(), "https://example.com".to_owned()),
     );
 
     assert_eq!(
