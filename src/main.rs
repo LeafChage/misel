@@ -2,6 +2,7 @@ extern crate clap;
 #[macro_use]
 extern crate combine;
 
+mod html;
 mod md;
 use clap::{App, Arg, ArgMatches};
 use std::fs::{read_to_string, File};
@@ -60,7 +61,7 @@ fn command() -> io::Result<()> {
     let src = read_from(input)?;
     let style_src = read_from(style)?;
     if let Ok(tokens) = md::markdown_parser(&src) {
-        write_to(output, md::generate_html(tokens, title, &style_src))?;
+        write_to(output, html::generate(tokens, title, &style_src))?;
     } else {
         return Err(Error::from(ErrorKind::Other));
     }
