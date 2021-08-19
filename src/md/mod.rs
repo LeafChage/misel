@@ -13,22 +13,3 @@ pub fn markdown_parser(
     let (tokens, _) = parser::block::parse().easy_parse(src)?;
     Ok(tokens)
 }
-
-use element::service::Html;
-pub fn generate_html(markdown: element::BlockChain, title: &str, style: &str) -> String {
-    let html = markdown.html();
-    String::from(format!(
-        "<!doctype html>
-        <meta charset=\"utf-8\">
-        <title>{}</title>
-    <style>
-    {}
-    </style>
-    <body>
-    <main>
-    {}
-    </main>
-    </body>",
-        title, style, html,
-    ))
-}
