@@ -4,6 +4,7 @@ use crate::md::element::{Block, Span};
 impl Html for Block {
     fn html(&self) -> String {
         match self {
+            Block::Localize(lang, tag) => format!("{:?} {:?}", lang, tag),
             Block::Header(level, chain) => {
                 format!("<h{}>{}</h{}>", level, chain.head.html(), level)
             }

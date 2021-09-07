@@ -5,6 +5,7 @@ use super::List;
 
 #[derive(Debug, Eq)]
 pub enum Block {
+    Localize(String, String),
     Header(u32, SpanChain),
     Backquote(u32, SpanChain),
     List(List),
@@ -16,6 +17,9 @@ pub enum Block {
 impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
+            (&Block::Localize(ref a1, ref a2), &Block::Localize(ref b1, ref b2)) => {
+                a1 == b1 && a2 == b2
+            }
             (&Block::HorizontalRules, &Block::HorizontalRules) => true,
             (&Block::Header(ref a1, ref a2), &Block::Header(ref b1, ref b2)) => {
                 a1 == b1 && a2 == b2

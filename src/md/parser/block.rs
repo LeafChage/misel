@@ -6,9 +6,37 @@ use super::util::{newline, to};
 use combine::parser::char::{space, string, tab};
 use combine::parser::repeat::{repeat_skip_until, take_until};
 use combine::{
-    attempt, between, choice, eof, look_ahead, many, many1, optional, produce, satisfy, sep_by,
-    sep_by1, sep_end_by, sep_end_by1, token, value, EasyParser, Parser, Stream,
+    attempt, choice, eof, look_ahead, many, many1, optional, produce, satisfy, sep_by, token,
+    value, EasyParser, Parser, Stream,
 };
+
+parser! {
+    fn localize[Input]()(Input) -> Block
+        where [
+            Input: Stream<Token = char>
+        ]
+    {
+        string("[](").with(
+                to(
+                    to(
+                        many(satisfy(|c| c != '#')),
+                        token('#')
+                    ).and(many(satisfy(|c| c != ')'))),
+                    token(')')
+                )
+        ).map(|(tag, language)| Block::Localize(tag, language))
+    }
+}
+#[test]
+fn ts_localize() {
+    assert_eq!(
+        localize().easy_parse(r#"[](tag#language)"#),
+        Ok((
+            Block::Localize(String::from("tag"), String::from("language")),
+            ""
+        ))
+    );
+}
 
 parser! {
     fn code_block[Input]()(Input) -> Block
