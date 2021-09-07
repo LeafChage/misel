@@ -1,9 +1,7 @@
 extern crate clap;
-#[macro_use]
-extern crate combine;
+extern crate md;
 
 mod html;
-mod md;
 use clap::{App, Arg, ArgMatches};
 use std::fs::{read_to_string, File};
 use std::io::{self, Error, ErrorKind, Write};
