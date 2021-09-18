@@ -1,3 +1,4 @@
+use super::super::element::block::{List, ListToken, ListUnit};
 use super::super::element::{Block, Span, S};
 use super::span;
 use super::util::{end, newline, space, to};
@@ -201,54 +202,6 @@ hello"#
     );
 }
 
-// parser! {
-//     fn list[Input](t: ListToken)(Input) -> Block
-//         where [
-//             Input: Stream<Token = char>
-//         ]
-//     {
-//         value(()).map(|_| Block::HorizontalRules)
-//             // many1::<Vec<_>, _, _>(token(ListToken::char(*t)).skip(space().or(tab())))
-//             //     .and(to(
-//             //             span::spans(&oneline),
-//             //             take_until(newline()).or(take_until(eof()))
-//             //     ))
-//     }
-// }
-
-// #[test]
-// fn ts_list() {
-//     assert_eq!(
-//         list(ListToken::Asterisk).easy_parse(
-//             r#"```* Hello1
-// * Hello2
-//     * Hello11
-//     * Hello12
-//     * Hello13
-// * Hello3```"#
-//         ),
-//         Ok((
-//             Block::List(List::List(
-//                 ListToken::Asterisk,
-//                 vec![
-//                     List::Span(Span::Text("Hello1".to_owned())),
-//                     List::Span(Span::Text("Hello2".to_owned())),
-//                     List::List(
-//                         ListToken::Asterisk,
-//                         vec![
-//                             List::Span(Span::Text("Hello11".to_owned())),
-//                             List::Span(Span::Text("Hello12".to_owned())),
-//                             List::Span(Span::Text("Hello13".to_owned())),
-//                         ]
-//                     ),
-//                     List::Span(Span::Text("Hello3".to_owned())),
-//                 ]
-//             )),
-//             ""
-//         ))
-//     );
-// }
-
 parser! {
     fn vanilla[Input]()(Input) -> Block
         where [
@@ -281,16 +234,15 @@ parser! {
         ]
     {
         token_parse()
-            .and(many::<Vec<Block>, _, _>(to(token_parse(),eof()))
-                .map(|v| S::from_vector(v)))
-            .map(|(v, v2)| S::cons(v, v2))
+            .and(end().map(|_| S::Nil)
+                .or(parse()))
+            .map(|(car, cdr)| S::cons(car, cdr))
     }
 }
 
 #[test]
 fn ts_parse() {
     use super::super::element::Emphasis;
-    return;
     assert_eq!(
         parse().easy_parse(
             r##"# Title
@@ -340,7 +292,10 @@ for(int i = 0; i < 10; i++) {
                             S::cons(
                                 Block::HorizontalRules,
                                 S::cons(
-                                    Block::Vanilla(S::unit(Span::text("I'm chage."))),
+                                    Block::Vanilla(S::cons(
+                                        Span::text("I'm"),
+                                        S::unit(Span::text("chage."))
+                                    )),
                                     S::cons(
                                         Block::Vanilla(S::cons(
                                             Span::text("I"),

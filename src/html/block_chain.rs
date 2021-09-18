@@ -1,12 +1,10 @@
 use super::html::Html;
-use crate::md::element::BlockChain;
+use md::element::{Block, S};
 
-impl Html for BlockChain {
+impl Html for S<Block> {
     fn html(&self) -> String {
-        if let Some(ref tail) = self.tail {
-            format!("{}\n{}", self.head.html(), tail.html())
-        } else {
-            format!("{}", self.head.html())
-        }
+        self.fold(String::from(""), |src, span| {
+            format!("{}\n{}", src, span.html())
+        })
     }
 }

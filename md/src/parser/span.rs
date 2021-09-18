@@ -160,9 +160,9 @@ fn ts_text() {
 }
 
 parser! {
-    fn token_parse[Input]()(Input) -> Span
+    pub fn parse[Input]()(Input) -> S::<Span>
         where [
-            Input: Stream<Token = char>,
+        Input: Stream<Token = char>,
         ]
     {
         devide_space(choice((
@@ -177,17 +177,8 @@ parser! {
                 println!("{:?}", d);
                 d
             })
-    }
-}
-parser! {
-    pub fn parse[Input]()(Input) -> S::<Span>
-        where [
-        Input: Stream<Token = char>,
-        ]
-    {
-        token_parse()
-            .and(end().map(|_| S::Nil)
-                .or(parse()))
+        .and(end().map(|_| S::Nil)
+            .or(parse()))
             .map(|(car, cdr)| S::cons(car, cdr))
     }
 }

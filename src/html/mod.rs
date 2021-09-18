@@ -4,10 +4,9 @@ mod html;
 mod span;
 mod span_chain;
 
-use crate::md::element::BlockChain;
 use html::Html;
 
-pub fn generate(markdown: BlockChain, title: &str, style: &str) -> String {
+pub fn generate(markdown: impl Html, title: &str, style: &str) -> String {
     let html = markdown.html();
     String::from(format!(
         "<!doctype html>

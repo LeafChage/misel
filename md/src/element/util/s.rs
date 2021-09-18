@@ -1,7 +1,7 @@
 use std::fmt;
 use std::iter::Iterator;
 
-#[derive(Eq)]
+#[derive(Eq, PartialEq)]
 pub enum S<T>
 where
     T: Eq + fmt::Debug,
@@ -52,19 +52,6 @@ where
         match self {
             &S::Cons(_, ref tail) => &(*tail),
             &S::Nil => &S::Nil,
-        }
-    }
-}
-
-impl<T> PartialEq for S<T>
-where
-    T: Eq + fmt::Debug,
-{
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (S::Nil, S::Nil) => true,
-            (S::Cons(ref a, ref a2), S::Cons(ref b, ref b2)) => a == b && a2 == b2,
-            _ => false,
         }
     }
 }
