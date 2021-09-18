@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-combine =  "4.6.0"
 clap = "2.33.3"
+md = { path = "./md" }
+

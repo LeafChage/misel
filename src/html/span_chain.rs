@@ -1,12 +1,10 @@
 use super::html::Html;
-use crate::md::element::SpanChain;
+use md::element::{Span, S};
 
-impl Html for SpanChain {
+impl Html for S<Span> {
     fn html(&self) -> String {
-        if let Some(ref tail) = self.tail {
-            format!("{}{}", self.head.html(), tail.html())
-        } else {
-            format!("{}", self.head.html())
-        }
+        self.fold(String::from(""), |src, span| {
+            format!("{}{}", src, span.html())
+        })
     }
 }
