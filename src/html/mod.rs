@@ -1,8 +1,8 @@
 mod block;
-mod block_chain;
+mod blocks;
 mod html;
 mod span;
-mod span_chain;
+mod spans;
 
 use html::Html;
 

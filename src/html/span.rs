@@ -1,12 +1,13 @@
 use super::html::Html;
-use crate::md::element::{Emphasis, Span};
+use md::span::emphasis::EmphasisType;
+use md::Span;
 
 impl Html for Span {
     fn html(&self) -> String {
         match self {
             Span::Link(label, src) => format!("<a href=\"{}\">{}</a>", src, label),
-            Span::Emphasis(Emphasis::Strong(value)) => format!("<strong>{}</strong>", value),
-            Span::Emphasis(Emphasis::Emphasis(value)) => format!("<em>{}</em>", value),
+            Span::Emphasis(EmphasisType::Strong, value) => format!("<strong>{}</strong>", value),
+            Span::Emphasis(EmphasisType::Emphasis, value) => format!("<em>{}</em>", value),
             Span::Code(src) => format!("<span>{}</span>", src),
             Span::Image(src, alt) => format!("<img src=\"{}\" alt=\"{}\"></img>", src, alt),
             Span::Text(value) => format!("{}", value),
@@ -25,14 +26,14 @@ fn ts_text_to_html() {
 #[test]
 fn ts_emphasis_strong_to_html() {
     assert_eq!(
-        Span::Emphasis(Emphasis::strong("strong")).html(),
+        Span::emphasis(EmphasisType::Strong, "strong").html(),
         r#"<strong>strong</strong>"#.to_owned(),
     );
 }
 #[test]
 fn ts_emphasis_emphasis_to_html() {
     assert_eq!(
-        Span::Emphasis(Emphasis::emphasis("emphasis")).html(),
+        Span::emphasis(EmphasisType::Emphasis, "emphasis").html(),
         r#"<em>emphasis</em>"#.to_owned(),
     );
 }

@@ -58,7 +58,7 @@ fn command() -> io::Result<()> {
 
     let src = read_from(input)?;
     let style_src = read_from(style)?;
-    if let Ok(tokens) = md::markdown_parser(&src) {
+    if let Ok(tokens) = md::parser(&src) {
         write_to(output, html::generate(tokens, title, &style_src))?;
     } else {
         return Err(Error::from(ErrorKind::Other));

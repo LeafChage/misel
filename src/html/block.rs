@@ -1,5 +1,5 @@
 use super::html::Html;
-use md::element::{Block, Span};
+use md::{Block, Span};
 
 impl Html for Block {
     fn html(&self) -> String {

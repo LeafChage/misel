@@ -1,10 +1,10 @@
 use super::html::Html;
-use md::element::{Block, S};
+use md::{Span, S};
 
-impl Html for S<Block> {
+impl Html for S<Span> {
     fn html(&self) -> String {
         self.fold(String::from(""), |src, span| {
-            format!("{}\n{}", src, span.html())
+            format!("{}{}", src, span.html())
         })
     }
 }
