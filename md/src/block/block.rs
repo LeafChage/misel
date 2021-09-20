@@ -1,6 +1,7 @@
 // https://daringfireball.net/projects/markdown/syntax
 use super::List;
-use crate::element::{Span, S};
+use crate::parser::s::S;
+use crate::span::Span;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Block {

@@ -1,4 +1,5 @@
-use crate::element::{Span, S};
+use crate::parser::s::S;
+use crate::span::Span;
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum ListToken {
