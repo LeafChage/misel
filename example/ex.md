@@ -12,13 +12,13 @@ Do you like it?.
 
 ## Like Food
 + Fruit
-  * Apple
-  * Orange
-  * indent count have to 2space (sorry)
+  1. Apple
+  2. Orange
+  3. indent count have to 2space (sorry)
 + Meat
 
 ## Image
-![image]("https://avatars.githubusercontent.com/u/18657444?s=48&v=4")
+![image](https://avatars.githubusercontent.com/u/18657444?s=48&v=4)
 
 ## Link
 [misel](https://github.com/LeafChage/misel)

@@ -23,8 +23,8 @@ impl Span {
         Span::Code(code.into())
     }
 
-    pub fn image(url: impl Into<String>, alt: impl Into<String>) -> Self {
-        Span::Image(url.into(), alt.into())
+    pub fn image(alt: impl Into<String>, url: impl Into<String>) -> Self {
+        Span::Image(alt.into(), url.into())
     }
 
     pub fn text(t: impl Into<String>) -> Self {

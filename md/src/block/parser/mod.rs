@@ -52,7 +52,7 @@ pub fn parse(tokens: &S<Token>) -> Result<(S<Block>, &S<Token>)> {
 
 #[test]
 fn ts_parse() {
-    use crate::block::ListLine;
+    use crate::block::{List, ListKind, ListLine};
     use crate::span::emphasis::EmphasisType;
     use crate::span::Span;
     assert_eq!(
@@ -118,42 +118,48 @@ for(int i = 0; i < 10; i++) {
                 )
             ),
             Block::HorizontalRules,
-            Block::List(S::from_vector(vec![
-                ListLine::Unordered(S::from_vector(vec![Span::text("List1")]), Box::new(S::Nil)),
-                ListLine::Unordered(
-                    S::from_vector(vec![Span::text("List2")]),
-                    Box::new(S::from_vector(vec![
-                        ListLine::Unordered(
-                            S::from_vector(vec![Span::text("List21")]),
-                            Box::new(S::Nil)
-                        ),
-                        ListLine::Unordered(
-                            S::from_vector(vec![Span::text("List22")]),
-                            Box::new(S::Nil)
-                        ),
-                    ]))
-                ),
-                ListLine::Unordered(
-                    S::from_vector(vec![Span::text("List3")]),
-                    Box::new(S::from_vector(vec![
-                        ListLine::Ordered(
-                            1,
-                            S::from_vector(vec![Span::text("List31")]),
-                            Box::new(S::Nil)
-                        ),
-                        ListLine::Ordered(
-                            2,
-                            S::from_vector(vec![Span::text("List32")]),
-                            Box::new(S::Nil)
-                        ),
-                        ListLine::Ordered(
-                            3,
-                            S::from_vector(vec![Span::text("List33")]),
-                            Box::new(S::Nil)
-                        ),
-                    ]))
-                ),
-            ])),
+            Block::List(List::new(
+                ListKind::Unordered,
+                S::from_vector(vec![
+                    ListLine::new(S::from_vector(vec![Span::text("List1")]), List::nil()),
+                    ListLine::new(
+                        S::from_vector(vec![Span::text("List2")]),
+                        List::new(
+                            ListKind::Unordered,
+                            S::from_vector(vec![
+                                ListLine::new(
+                                    S::from_vector(vec![Span::text("List21")]),
+                                    List::nil()
+                                ),
+                                ListLine::new(
+                                    S::from_vector(vec![Span::text("List22")]),
+                                    List::nil()
+                                ),
+                            ])
+                        )
+                    ),
+                    ListLine::new(
+                        S::from_vector(vec![Span::text("List3")]),
+                        List::new(
+                            ListKind::Ordered,
+                            S::from_vector(vec![
+                                ListLine::new(
+                                    S::from_vector(vec![Span::text("List31")]),
+                                    List::nil()
+                                ),
+                                ListLine::new(
+                                    S::from_vector(vec![Span::text("List32")]),
+                                    List::nil()
+                                ),
+                                ListLine::new(
+                                    S::from_vector(vec![Span::text("List33")]),
+                                    List::nil()
+                                ),
+                            ])
+                        )
+                    ),
+                ])
+            )),
         ]))
     );
 }
