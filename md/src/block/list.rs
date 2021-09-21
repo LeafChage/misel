@@ -1,49 +1,29 @@
 use crate::parser::s::S;
 use crate::span::Span;
-
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
-pub enum ListToken {
-    Asterisk,         // *
-    Hyphen,           // -
-    Plus,             // +
-    Numbering(isize), // 1
-}
-
-impl ListToken {
-    pub fn token(&self) -> char {
-        match self {
-            ListToken::Asterisk => '*',
-            ListToken::Hyphen => '-',
-            ListToken::Plus => '+',
-            ListToken::Numbering(n) => std::char::from_digit(*n as u32, 10).unwrap(),
-        }
-    }
-
-    pub fn next(&self) -> Self {
-        match self {
-            ListToken::Asterisk => ListToken::Asterisk,
-            ListToken::Hyphen => ListToken::Hyphen,
-            ListToken::Plus => ListToken::Plus,
-            ListToken::Numbering(n) => ListToken::Numbering(n + 1),
-        }
-    }
-}
-
-pub type ListUnit = (ListToken, S<Span>, Box<List>);
+use crate::tokenize::Token;
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct List(S<ListUnit>);
+pub enum ListLine {
+    Unordered(S<Span>, Box<S<ListLine>>),
+    Ordered(usize, S<Span>, Box<S<ListLine>>),
+}
 
-impl List {
-    pub fn cons(head: (ListToken, S<Span>, List), tail: S<ListUnit>) -> Self {
-        let (t, spans, l) = head;
-        List(S::cons((t, spans, Box::new(l)), tail))
+impl ListLine {
+    pub fn next_list_target(token: &Token) -> Token {
+        match token {
+            &Token::Asterisk | &Token::Hyphen | &Token::Plus => token.clone(),
+            &Token::Index(n) => Token::Index(n + 1),
+            _ => unimplemented!(),
+        }
     }
-    pub fn unit(head: (ListToken, S<Span>, List)) -> Self {
-        let (t, spans, l) = head;
-        List(S::cons((t, spans, Box::new(l)), S::Nil))
-    }
-    pub fn nil() -> Self {
-        List(S::Nil)
+
+    pub fn need_parsed_targets(target: &Token) -> S<Token> {
+        match target {
+            &Token::Asterisk | &Token::Hyphen | &Token::Plus => {
+                S::from_vector(vec![target.clone(), Token::Space])
+            }
+            &Token::Index(_) => S::from_vector(vec![target.clone(), Token::Dot, Token::Space]),
+            _ => unimplemented!(),
+        }
     }
 }

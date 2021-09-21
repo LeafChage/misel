@@ -33,6 +33,13 @@ impl ParseError {
         }
     }
 
+    pub fn not_found(expected: Vec<&Token>) -> Self {
+        // unimplemented!();
+        ParseError {
+            msg: format!("expected: {:?}", expected),
+        }
+    }
+
     pub fn unexpected() -> Self {
         // unimplemented!();
         ParseError {

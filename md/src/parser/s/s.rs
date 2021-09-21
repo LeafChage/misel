@@ -28,8 +28,10 @@ where
 
     pub fn to_vector(&self) -> Vec<&T> {
         let mut v = Vec::new();
-        while let Some(h) = self.head() {
-            v.push(h)
+        let mut tail = self;
+        while let Some(h) = tail.head() {
+            v.push(h);
+            tail = tail.tail();
         }
         v
     }

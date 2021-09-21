@@ -1,5 +1,5 @@
 use super::super::span::Span;
-use crate::parser::error::parser::{ParseError, Result};
+use crate::parser::error::parser::Result;
 use crate::parser::s::S;
 use crate::tokenize::Token;
 
