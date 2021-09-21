@@ -1,8 +1,10 @@
+#[warn(unused_variables)]
 use super::s::S;
 use crate::parser::error::parser::{ParseError, Result};
 use crate::tokenize::Token;
 use std::iter::Iterator;
 
+#[derive(Clone, Debug)]
 enum HowToHandle {
     /// abcd until b return (a, cd)
     Ignore,
@@ -92,7 +94,7 @@ impl S<Token> {
                 HowToHandle::Include => panic!("unexpected"),
             }
         } else {
-            Err(ParseError::unexpected())
+            Err(ParseError::not_found(targets.to_vector()))
         }
     }
 
@@ -199,6 +201,10 @@ impl S<Token> {
         self.to_somewhere(targets, HowToHandle::Leave)
     }
 
+    pub fn to_somewhere_include(&self, targets: Vec<Token>) -> Result<(S<Token>, &S<Token>)> {
+        self.to_somewhere(targets, HowToHandle::Include)
+    }
+
     fn to_somewhere(
         &self,
         targets: Vec<Token>,
@@ -217,10 +223,10 @@ impl S<Token> {
             });
 
             Ok(match include {
-                Some(target) => match how_to_handle {
+                Some(_target) => match how_to_handle {
                     HowToHandle::Ignore => (S::Nil, self.tail()),
                     HowToHandle::Leave => (S::Nil, self),
-                    HowToHandle::Include => unimplemented!(),
+                    HowToHandle::Include => (S::unit(head.clone()), self.tail()),
                 },
                 None => {
                     let (car, cdr) = self.tail().to_somewhere(targets, how_to_handle)?;
@@ -280,6 +286,35 @@ impl S<Token> {
         } else {
             Ok((count, tokens))
         }
+    }
+
+    pub fn next_are_or_ignore<'a>(
+        &'a self,
+        someone: Vec<S<Token>>,
+    ) -> Result<(S<Token>, &'a S<Token>)> {
+        self.next_are_or(someone, HowToHandle::Ignore)
+    }
+
+    pub fn next_are_or_leave<'a>(
+        &'a self,
+        someone: Vec<S<Token>>,
+    ) -> Result<(S<Token>, &'a S<Token>)> {
+        self.next_are_or(someone, HowToHandle::Leave)
+    }
+
+    fn next_are_or<'a>(
+        &'a self,
+        someone: Vec<S<Token>>,
+        how_to_handle: HowToHandle,
+    ) -> Result<(S<Token>, &'a S<Token>)> {
+        for t in someone.into_iter() {
+            let result = self.next_are(t, how_to_handle.clone());
+            if let Ok(_) = result {
+                return result;
+            }
+        }
+
+        Err(ParseError::message(format!("next_are_or")))
     }
 }
 
@@ -460,6 +495,31 @@ fn ts_many() {
                 Token::Sharp,
                 Token::text("chage"),
             ])
+        ))
+    );
+}
+
+#[test]
+fn ts_next_are_or() {
+    assert_eq!(
+        S::from_vector(vec![Token::Sharp, Token::Sharp, Token::Asterisk]).next_are_or_ignore(vec![
+            S::from_vector(vec![Token::Space, Token::Space]),
+            S::from_vector(vec![Token::Sharp, Token::Sharp])
+        ]),
+        Ok((
+            S::from_vector(vec![Token::Sharp, Token::Sharp]),
+            &S::from_vector(vec![Token::Asterisk])
+        ))
+    );
+
+    assert_eq!(
+        S::from_vector(vec![Token::Sharp, Token::Sharp, Token::Asterisk]).next_are_or_ignore(vec![
+            S::from_vector(vec![Token::Sharp]),
+            S::from_vector(vec![Token::Sharp, Token::Sharp])
+        ]),
+        Ok((
+            S::from_vector(vec![Token::Sharp]),
+            &S::from_vector(vec![Token::Sharp, Token::Asterisk])
         ))
     );
 }

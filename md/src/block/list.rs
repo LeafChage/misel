@@ -1,49 +1,75 @@
 use crate::parser::s::S;
 use crate::span::Span;
-
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
-pub enum ListToken {
-    Asterisk,         // *
-    Hyphen,           // -
-    Plus,             // +
-    Numbering(isize), // 1
-}
-
-impl ListToken {
-    pub fn token(&self) -> char {
-        match self {
-            ListToken::Asterisk => '*',
-            ListToken::Hyphen => '-',
-            ListToken::Plus => '+',
-            ListToken::Numbering(n) => std::char::from_digit(*n as u32, 10).unwrap(),
-        }
-    }
-
-    pub fn next(&self) -> Self {
-        match self {
-            ListToken::Asterisk => ListToken::Asterisk,
-            ListToken::Hyphen => ListToken::Hyphen,
-            ListToken::Plus => ListToken::Plus,
-            ListToken::Numbering(n) => ListToken::Numbering(n + 1),
-        }
-    }
-}
-
-pub type ListUnit = (ListToken, S<Span>, Box<List>);
+use crate::tokenize::Token;
 
 #[derive(Debug, Eq, PartialEq)]
-pub struct List(S<ListUnit>);
+pub enum ListKind {
+    Unordered,
+    Ordered,
+    Nil,
+}
+
+impl ListKind {
+    pub fn from_token(token: &Token) -> Self {
+        match token {
+            &Token::Asterisk | &Token::Hyphen | &Token::Plus => ListKind::Unordered,
+            &Token::Index(_n) => ListKind::Ordered,
+            _ => ListKind::Nil,
+        }
+    }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct ListLine {
+    pub line: S<Span>,
+    pub child_list: Box<List>,
+}
+
+impl ListLine {
+    pub fn new(spans: S<Span>, child: List) -> Self {
+        ListLine {
+            line: spans,
+            child_list: Box::new(child),
+        }
+    }
+
+    pub fn next_list_target(token: &Token) -> Token {
+        match token {
+            &Token::Asterisk | &Token::Hyphen | &Token::Plus => token.clone(),
+            &Token::Index(n) => Token::Index(n + 1),
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn need_parsed_targets(target: &Token) -> S<Token> {
+        match target {
+            &Token::Asterisk | &Token::Hyphen | &Token::Plus => {
+                S::from_vector(vec![target.clone(), Token::Space])
+            }
+            &Token::Index(_) => S::from_vector(vec![target.clone(), Token::Dot, Token::Space]),
+            _ => unimplemented!(),
+        }
+    }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub struct List {
+    pub kind: ListKind,
+    pub list: S<ListLine>,
+}
 
 impl List {
-    pub fn cons(head: (ListToken, S<Span>, List), tail: S<ListUnit>) -> Self {
-        let (t, spans, l) = head;
-        List(S::cons((t, spans, Box::new(l)), tail))
+    pub fn new(kind: ListKind, lines: S<ListLine>) -> Self {
+        List {
+            kind: kind,
+            list: lines,
+        }
     }
-    pub fn unit(head: (ListToken, S<Span>, List)) -> Self {
-        let (t, spans, l) = head;
-        List(S::cons((t, spans, Box::new(l)), S::Nil))
-    }
+
     pub fn nil() -> Self {
-        List(S::Nil)
+        List {
+            kind: ListKind::Nil,
+            list: S::Nil,
+        }
     }
 }

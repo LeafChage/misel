@@ -9,7 +9,7 @@ impl Html for Span {
             Span::Emphasis(EmphasisType::Strong, value) => format!("<strong>{}</strong>", value),
             Span::Emphasis(EmphasisType::Emphasis, value) => format!("<em>{}</em>", value),
             Span::Code(src) => format!("<span>{}</span>", src),
-            Span::Image(src, alt) => format!("<img src=\"{}\" alt=\"{}\"></img>", src, alt),
+            Span::Image(alt, src) => format!("<img src=\"{}\" alt=\"{}\"></img>", src, alt),
             Span::Text(value) => format!("{}", value),
             Span::Nil => String::new(),
         }
@@ -49,7 +49,7 @@ fn ts_link_to_html() {
 #[test]
 fn ts_image_to_html() {
     assert_eq!(
-        Span::image("https://example.com/image.jpeg", "alt").html(),
+        Span::image("alt", "https://example.com/image.jpeg",).html(),
         r#"<img src="https://example.com/image.jpeg" alt="alt"></img>"#.to_owned(),
     );
 }

@@ -11,7 +11,7 @@ Coming soon.
         * [x] support text
     * [x] Suport Block
         * [x] support horizontal line
-        * [ ] support list
+        * [x] support list
         * [ ] support table
         * [x] support quote
         * [x] support code block
@@ -25,7 +25,7 @@ Coming soon.
         * [x] support text
     * [x] Suport Block
         * [x] support horizontal line
-        * [ ] support list
+        * [x] support list
         * [ ] support table
         * [x] support quote
         * [x] support code block

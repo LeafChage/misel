@@ -1,7 +1,6 @@
 use super::super::block::Block;
 use crate::parser::error::parser::{ParseError, Result};
 use crate::parser::s::S;
-use crate::span;
 use crate::tokenize::Token;
 
 fn horizontal_rules_with_target(
