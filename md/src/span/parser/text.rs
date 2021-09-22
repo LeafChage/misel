@@ -4,7 +4,7 @@ use crate::parser::s::S;
 use crate::tokenize::Token;
 
 pub fn text(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
-    let (src, tokens) = tokens.to_somewhere_leave(vec![
+    let (src, tokens) = if let Ok((src, tokens)) = tokens.to_somewhere_leave(vec![
         Token::BlockBracketStart,
         Token::UnderScore,
         Token::Asterisk,
@@ -12,7 +12,13 @@ pub fn text(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
         Token::ExclamationMark,
         Token::Newline,
         Token::EOF,
-    ])?;
+    ]) {
+        (src, tokens)
+    } else {
+        let src = tokens.to_end();
+        (src, &S::Nil)
+    };
+
     let chmoped_text = src.chmop();
     if chmoped_text.length() == 0 {
         // only space

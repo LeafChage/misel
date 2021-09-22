@@ -9,6 +9,7 @@ pub enum Block {
     Backquote(u32, S<Span>),
     List(List),
     CodeBlock(String, Span),
+    Table(S<Span>, S<S<Span>>),
     HorizontalRules,
     Vanilla(S<Span>),
 }

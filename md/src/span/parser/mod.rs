@@ -42,6 +42,7 @@ pub fn parse(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else {
+        println!("unexpected : {:?}", tokens.head());
         Err(ParseError::eof(vec![]))
     }
 }
