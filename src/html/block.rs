@@ -11,6 +11,21 @@ impl Html for Block {
             Block::CodeBlock(_lang, src) => format!("<div>{}</div>", Span::html(src)),
             Block::HorizontalRules => format!("</hr>"),
             Block::Vanilla(list) => format!("<p>{}</p>", list.html()),
+            Block::Table(headers, bodies) => format!(
+                "<table>\n<tr>{}</tr>\n{}\n</table>",
+                headers.fold(String::from(""), |src, column| {
+                    format!("{}\n<th>{}</th>", src, column.html())
+                }),
+                bodies.fold(String::from(""), |src, body| {
+                    format!(
+                        "{}\n<tr>{}</tr>",
+                        src,
+                        body.fold(String::from(""), |src, column| {
+                            format!("{}\n<td>{}</td>", src, column.html())
+                        }),
+                    )
+                })
+            ),
         }
     }
 }

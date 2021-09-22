@@ -238,6 +238,14 @@ impl S<Token> {
         }
     }
 
+    pub fn to_end(&self) -> S<Token> {
+        if let Some(head) = self.head() {
+            S::cons(head.clone(), self.tail().to_end())
+        } else {
+            S::Nil
+        }
+    }
+
     pub fn many_ignore<'a>(&'a self, targets: S<Token>) -> Result<(usize, &'a S<Token>)> {
         self.many(targets, HowToHandle::Ignore)
     }

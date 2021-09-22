@@ -3,6 +3,7 @@ mod code_block;
 mod header;
 mod horizontal_rules;
 mod list;
+mod table;
 mod vanilla;
 
 pub use backquote::backquote;
@@ -10,6 +11,7 @@ pub use code_block::code_block;
 pub use header::header;
 pub use horizontal_rules::horizontal_rules;
 pub use list::list;
+pub use table::table;
 pub use vanilla::vanilla;
 
 use super::block::Block;
@@ -38,6 +40,10 @@ pub fn parse(tokens: &S<Token>) -> Result<(S<Block>, &S<Token>)> {
         let (blocks, tokens) = parse(tokens)?;
         Ok((S::cons(block, blocks), tokens))
     } else if let Ok((block, tokens)) = list(tokens) {
+        println!("[Block] {:?}", block);
+        let (blocks, tokens) = parse(tokens)?;
+        Ok((S::cons(block, blocks), tokens))
+    } else if let Ok((block, tokens)) = table(tokens) {
         println!("[Block] {:?}", block);
         let (blocks, tokens) = parse(tokens)?;
         Ok((S::cons(block, blocks), tokens))
