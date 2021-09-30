@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 combine =  "4.6.0"
+s = { path = "../s" }

@@ -23,7 +23,7 @@ impl ParseError {
         ParseError { msg: msg.into() }
     }
 
-    pub fn eof(expected: Vec<Token>) -> Self {
+    pub fn eof(expected: &Vec<Token>) -> Self {
         ParseError {
             msg: format!(
                 "expected: {:?} / unexptected: {:?}",

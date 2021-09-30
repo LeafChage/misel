@@ -11,39 +11,39 @@ pub use link::link;
 pub use text::text;
 
 use super::super::span::Span;
-use crate::parser::error::parser::{ParseError, Result};
-use crate::parser::s::S;
 use crate::tokenize::Token;
+use s::{Result, ScannerError, S};
 
 pub fn parse(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
-    println!("[SPAN] Next {:?}", tokens.head());
-    if let Ok((_, tokens)) = tokens.next_is_ignore(Token::EOF) {
+    println!("\t[SPAN]>>");
+    println!("\t[SPAN]>> spannext {:?}", tokens.head());
+    if let Ok((_, tokens)) = tokens.next_is_ignore(&Token::EOF) {
         Ok((S::Nil, tokens))
-    } else if let Ok((_, tokens)) = tokens.next_is_ignore(Token::Newline) {
+    } else if let Ok((_, tokens)) = tokens.next_is_ignore(&Token::Newline) {
         Ok((S::Nil, tokens))
     } else if let Ok((span, tokens)) = link(tokens) {
-        println!("[SPAN] {:?}", span);
+        println!("\t[SPAN] {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = code(tokens) {
-        println!("[SPAN] {:?}", span);
+        println!("\t[SPAN] {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = image(tokens) {
-        println!("[SPAN] {:?}", span);
+        println!("\t[SPAN] {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = emphasis(tokens) {
-        println!("[SPAN] {:?}", span);
+        println!("\t[SPAN] {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = text(tokens) {
-        println!("[SPAN] {:?}", span);
+        println!("\t[SPAN] {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else {
         println!("unexpected : {:?}", tokens.head());
-        Err(ParseError::eof(vec![]))
+        Err(ScannerError::end())
     }
 }
 

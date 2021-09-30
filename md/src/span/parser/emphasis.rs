@@ -1,8 +1,7 @@
 use super::super::emphasis::{EmphasisToken, EmphasisType};
 use super::super::span::Span;
-use crate::parser::error::parser::{ParseError, Result};
-use crate::parser::s::S;
 use crate::tokenize::Token;
+use s::{Result, ScannerError, S};
 
 fn emphasis_with_target(
     tokens: &S<Token>,
@@ -10,13 +9,13 @@ fn emphasis_with_target(
     expect: EmphasisType,
 ) -> Result<(Span, &S<Token>)> {
     let v = target.token();
-    let (_, tokens) = tokens.next_is_ignore(v.clone())?;
+    let (_, tokens) = tokens.next_is_ignore(&v)?;
     if let Ok((span, tokens)) = emphasis_with_target(tokens, target, expect.other()) {
-        let (_, tokens) = tokens.until_ignore(v.clone())?;
+        let (_, tokens) = tokens.until_ignore(&v)?;
         Ok((span, tokens))
     } else {
-        let (value, tokens) = tokens.until_ignore(v.clone())?;
-        Ok((Span::emphasis(expect, value.string()), tokens))
+        let (value, tokens) = tokens.until_ignore(&v)?;
+        Ok((Span::emphasis(expect, value.to_string()), tokens))
     }
 }
 
@@ -29,8 +28,8 @@ pub fn emphasis(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
         Some(Token::UnderScore) => {
             emphasis_with_target(tokens, EmphasisToken::UnderScore, EmphasisType::Strong)
         }
-        Some(n) => Err(ParseError::new(Token::Asterisk, n)),
-        None => Err(ParseError::eof(vec![Token::Asterisk, Token::UnderScore])),
+        Some(n) => Err(ScannerError::unexpected(&Token::Asterisk, n)),
+        None => Err(ScannerError::end()),
     }
 }
 

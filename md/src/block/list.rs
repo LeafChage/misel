@@ -1,6 +1,6 @@
-use crate::parser::s::S;
 use crate::span::Span;
 use crate::tokenize::Token;
+use s::S;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum ListKind {

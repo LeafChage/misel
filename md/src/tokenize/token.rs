@@ -1,3 +1,5 @@
+use s::S;
+
 #[derive(Eq, PartialEq, Debug, Clone)]
 pub enum Token {
     Sharp,             // #
@@ -51,6 +53,26 @@ impl Token {
             &Token::Text(ref s) => s,
             &Token::Index(_) => panic!("unexpected"),
             &Token::EOF => panic!("unexpected"),
+        }
+    }
+}
+
+impl ToString for S<Token> {
+    fn to_string(&self) -> String {
+        if let Some(head) = self.head() {
+            format!("{}{}", head.v(), self.tail().to_string())
+        } else {
+            String::new()
+        }
+    }
+}
+
+impl ToString for S<&Token> {
+    fn to_string(&self) -> String {
+        if let Some(head) = self.head() {
+            format!("{}{}", head.v(), self.tail().to_string())
+        } else {
+            String::new()
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::parser::s::S;
+use crate::s::S;
 use combine::EasyParser;
 mod parser;
 mod token;

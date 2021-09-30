@@ -1,7 +1,7 @@
 use super::token::Token;
-use crate::parser::s::S;
 use combine::parser::char::digit;
 use combine::{attempt, choice, eof, look_ahead, many, many1, satisfy, token, Stream};
+use s::S;
 use std::vec::*;
 
 fn is_reserved_token(c: char) -> bool {
@@ -52,7 +52,7 @@ parser! {
 }
 
 parser! {
-    pub fn parse[Input]()(Input) -> S<Token>
+    pub fn parse[Input]()(Input) -> Vec<Token>
         where [
         Input: Stream<Token = char>,
         ]
@@ -80,7 +80,7 @@ parser! {
         )).map(|d| {
             println!("{:?}", d);
             d
-        }).and(eof().map(|_| S::cons(Token::EOF, S::Nil))
+        }).and(eof().map(|_| vec![Token::EOF].concat()S::cons(Token::EOF, S::Nil))
         .or(parse()))
         .map(|(car, cdr)| S::cons(car, cdr))
     }

@@ -15,14 +15,18 @@ pub use table::table;
 pub use vanilla::vanilla;
 
 use super::block::Block;
-use crate::parser::error::parser::{ParseError, Result};
-use crate::parser::s::S;
 use crate::tokenize::Token;
+use s::{Result, ScannerError, S};
 
 pub fn parse(tokens: &S<Token>) -> Result<(S<Block>, &S<Token>)> {
-    println!("[Block] Next {:?} >>>", tokens.head());
-    if let Ok((_, tokens)) = tokens.next_is_ignore(Token::EOF) {
+    println!("[Block] >>>");
+    println!("[Block] >>> NextToken {:?}", tokens.head());
+    if let Ok((_, tokens)) = tokens.next_is_ignore(&Token::EOF) {
         Ok((S::Nil, tokens))
+    } else if let Ok((block, tokens)) = vanilla(tokens) {
+        println!("[Block] {:?}", block);
+        let (blocks, tokens) = parse(tokens)?;
+        Ok((S::cons(block, blocks), tokens))
     } else if let Ok((block, tokens)) = header(tokens) {
         println!("[Block] {:?}", block);
         let (blocks, tokens) = parse(tokens)?;
@@ -47,12 +51,8 @@ pub fn parse(tokens: &S<Token>) -> Result<(S<Block>, &S<Token>)> {
         println!("[Block] {:?}", block);
         let (blocks, tokens) = parse(tokens)?;
         Ok((S::cons(block, blocks), tokens))
-    } else if let Ok((block, tokens)) = vanilla(tokens) {
-        println!("[Block] {:?}", block);
-        let (blocks, tokens) = parse(tokens)?;
-        Ok((S::cons(block, blocks), tokens))
     } else {
-        Err(ParseError::eof(vec![]))
+        Err(ScannerError::end())
     }
 }
 

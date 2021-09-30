@@ -79,6 +79,7 @@ name = "md"
 version = "0.1.0"
 dependencies = [
  "combine",
+ "s",
 ]
 
 [[package]]
@@ -94,6 +95,10 @@ dependencies = [
  "clap",
  "md",
 ]
+
+[[package]]
+name = "s"
+version = "0.1.0"
 
 [[package]]
 name = "strsim"

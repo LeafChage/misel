@@ -90,10 +90,31 @@ where
         }
     }
 
+    // move new list
+    pub fn push(self, t: T) -> S<T> {
+        match self {
+            S::Cons(head, tail) => S::cons(head, tail.push(t)),
+            S::Nil => S::unit(t),
+        }
+    }
+
     pub fn tail(&self) -> &S<T> {
         match self {
             &S::Cons(_, ref tail) => &(*tail),
             &S::Nil => &S::Nil,
+        }
+    }
+
+    pub fn slice(&self, to: usize) -> (S<&T>, &S<T>) {
+        if to == 0 {
+            (S::Nil, self)
+        } else {
+            if let Some(head) = self.head() {
+                let (h, tail) = self.tail().slice(to - 1);
+                (S::cons(head, h), tail)
+            } else {
+                panic!();
+            }
         }
     }
 
@@ -137,6 +158,17 @@ fn ts_zipwith() {
     assert_eq!(
         S::from_vector(vec![1, 2, 3]).zip_with(&S::from_vector(vec![4, 5, 6]), |a, b| a + b),
         S::from_vector(vec![5, 7, 9])
+    )
+}
+
+#[test]
+fn ts_slice() {
+    assert_eq!(
+        S::from_vector(vec![1, 2, 3, 4, 5]).slice(2),
+        (
+            S::from_vector(vec![&1, &:w 2]),
+            &S::from_vector(vec![3, 4, 5])
+        )
     )
 }
 

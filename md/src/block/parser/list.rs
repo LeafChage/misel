@@ -1,8 +1,7 @@
 use super::super::{Block, List, ListKind, ListLine};
-use crate::parser::error::parser::{ParseError, Result};
-use crate::parser::s::S;
 use crate::span;
 use crate::tokenize::Token;
+use s::{Result, S};
 
 fn list_with(tokens: &S<Token>, depth: usize, target: Token) -> Result<(S<ListLine>, &S<Token>)> {
     let mut tails = tokens;
@@ -19,13 +18,13 @@ fn list_with(tokens: &S<Token>, depth: usize, target: Token) -> Result<(S<ListLi
 
     let parsed_depth_tokens = tails;
 
-    if let Ok(_) = parsed_depth_tokens.next_is_leave(target.clone()) {
+    if let Ok(_) = parsed_depth_tokens.next_is_leave(&target) {
         // parse same level list
         let (_, parsed_list_tokens) =
-            parsed_depth_tokens.next_are_ignore(ListLine::need_parsed_targets(&target))?;
+            parsed_depth_tokens.next_are_ignore(&ListLine::need_parsed_targets(&target))?;
         let (line, parsed_list_line) =
             parsed_list_tokens.to_somewhere_include(vec![Token::Newline, Token::EOF])?;
-        let (spans, _) = span::parse(&line)?;
+        let (spans, _) = span::parse(&line.push(&Token::EOF))?;
 
         // try to parse child list
         let (child_lines, parsed_list_child) =
@@ -66,13 +65,13 @@ fn first_token_in_same_depth(tokens: &S<Token>, depth: usize) -> Result<Token> {
         tails = t;
     }
 
-    if let Ok(_) = tails.next_is_leave(Token::Asterisk) {
+    if let Ok(_) = tails.next_is_leave(&Token::Asterisk) {
         Ok(Token::Asterisk)
-    } else if let Ok(_) = tails.next_is_leave(Token::Plus) {
+    } else if let Ok(_) = tails.next_is_leave(&Token::Plus) {
         Ok(Token::Plus)
-    } else if let Ok(_) = tails.next_is_leave(Token::Hyphen) {
+    } else if let Ok(_) = tails.next_is_leave(&Token::Hyphen) {
         Ok(Token::Hyphen)
-    } else if let Ok(_) = tails.next_are_leave(S::from_vector(vec![Token::Index(1), Token::Dot])) {
+    } else if let Ok(_) = tails.next_are_leave(&S::from_vector(vec![Token::Index(1), Token::Dot])) {
         Ok(Token::Index(1))
     } else {
         Err(ParseError::not_found(vec![

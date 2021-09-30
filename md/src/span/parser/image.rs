@@ -1,15 +1,14 @@
 use super::super::span::Span;
-use crate::parser::error::parser::Result;
-use crate::parser::s::S;
 use crate::tokenize::Token;
+use s::{Result, S};
 
 pub fn image(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(Token::ExclamationMark)?;
-    let (_, tokens) = tokens.next_is_ignore(Token::BlockBracketStart)?;
-    let (alt, tokens) = tokens.until_ignore(Token::BlockBracketEnd)?;
-    let (_, tokens) = tokens.next_is_ignore(Token::BracketStart)?;
-    let (link, tokens) = tokens.until_ignore(Token::BracketEnd)?;
-    Ok((Span::image(alt.string(), link.string()), tokens))
+    let (_, tokens) = tokens.next_is_ignore(&Token::ExclamationMark)?;
+    let (_, tokens) = tokens.next_is_ignore(&Token::BlockBracketStart)?;
+    let (alt, tokens) = tokens.until_ignore(&Token::BlockBracketEnd)?;
+    let (_, tokens) = tokens.next_is_ignore(&Token::BracketStart)?;
+    let (link, tokens) = tokens.until_ignore(&Token::BracketEnd)?;
+    Ok((Span::image(alt.to_string(), link.to_string()), tokens))
 }
 
 #[test]
