@@ -29,7 +29,7 @@ fn horizontal_rules_with_target(
         vec![horizontal_token]
     }))?;
 
-    let (_, tokens) = tokens.next_is_ignore(&Token::Newline)?;
+    let (_, tokens) = tokens.next_is_ignore(Token::Newline)?;
     Ok((Block::HorizontalRules, tokens))
 }
 
@@ -47,11 +47,11 @@ pub fn horizontal_rules(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
     } else if let Ok(v) = horizontal_rules_with_target(tokens, Token::UnderScore, false) {
         Ok(v)
     } else {
-        Err(ScannerError::not_found(vec![
+        Err(ScannerError::not_found(&S::from_vector(vec![
             Token::Asterisk,
             Token::UnderScore,
             Token::Hyphen,
-        ]))
+        ])))
     }
 }
 

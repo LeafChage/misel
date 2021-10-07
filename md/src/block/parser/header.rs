@@ -6,8 +6,8 @@ use s::{Result, S};
 pub fn header(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
     let (level, tokens) = tokens.many1_ignore(&S::from_vector(vec![Token::Sharp]))?;
     let (_, tokens) = tokens.many1_ignore(&S::from_vector(vec![Token::Space]))?;
-    let newline = tokens.until_include(&Token::Newline);
-    let eof = tokens.until_include(&Token::EOF);
+    let newline = tokens.until_include(Token::Newline);
+    let eof = tokens.until_include(Token::EOF);
     let (src, tokens) = match (&newline, &eof) {
         (Ok(_), _) => newline,
         (Err(_), Ok(_)) => eof,
@@ -15,7 +15,7 @@ pub fn header(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
     }?;
 
     let added_eof = src.push(Token::EOF);
-    let (spans, _) = span::parse(added_eof)?;
+    let (spans, _) = span::parse(&added_eof)?;
     Ok((Block::Header(level as u32, spans), tokens))
 }
 

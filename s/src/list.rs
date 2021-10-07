@@ -64,7 +64,7 @@ where
     pub fn zip_with<'a, F, J>(&'a self, others: &'a S<T>, f: F) -> S<J>
     where
         F: Fn(&'a T, &'a T) -> J,
-        J: Eq + fmt::Debug,
+        J: Eq + fmt::Debug + Clone,
     {
         let car = self.head();
         let cadr = self.tail().head();
@@ -102,24 +102,6 @@ where
         match self {
             &S::Cons(_, ref tail) => &(*tail),
             &S::Nil => &S::Nil,
-        }
-    }
-
-    pub fn head_before(&self, to: usize) -> S<&T> {
-        let (result, _) = self.slice(to);
-        result
-    }
-
-    pub fn slice(&self, to: usize) -> (S<&T>, &S<T>) {
-        if to == 0 {
-            (S::Nil, self)
-        } else {
-            if let Some(head) = self.head() {
-                let (h, tail) = self.tail().slice(to - 1);
-                (S::cons(head, h), tail)
-            } else {
-                panic!();
-            }
         }
     }
 
@@ -165,22 +147,6 @@ fn ts_zipwith() {
         S::from_vector(vec![5, 7, 9])
     )
 }
-#[test]
-fn ts_head_before() {
-    assert_eq!(
-        S::from_vector(vec![1, 2, 3, 4, 5]).head_before(2),
-        (S::from_vector(vec![&1, &2]))
-    )
-}
-
-#[test]
-fn ts_slice() {
-    assert_eq!(
-        S::from_vector(vec![1, 2, 3, 4, 5]).slice(2),
-        (S::from_vector(vec![&1, &2]), &S::from_vector(vec![3, 4, 5]))
-    )
-}
-
 #[test]
 fn ts_tail_after() {
     assert_eq!(

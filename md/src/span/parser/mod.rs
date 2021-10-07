@@ -15,30 +15,29 @@ use crate::tokenize::Token;
 use s::{Result, ScannerError, S};
 
 pub fn parse(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
-    println!("\t[SPAN]>>");
-    println!("\t[SPAN]>> spannext {:?}", tokens.head());
-    if let Ok((_, tokens)) = tokens.next_is_ignore(&Token::EOF) {
+    println!("\t[SPAN] {:?} >>>", tokens.head());
+    if let Ok((_, tokens)) = tokens.next_is_ignore(Token::EOF) {
         Ok((S::Nil, tokens))
-    } else if let Ok((_, tokens)) = tokens.next_is_ignore(&Token::Newline) {
+    } else if let Ok((_, tokens)) = tokens.next_is_ignore(Token::Newline) {
         Ok((S::Nil, tokens))
     } else if let Ok((span, tokens)) = link(tokens) {
-        println!("\t[SPAN] {:?}", span);
+        println!("\t[SPAN] <<< {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = code(tokens) {
-        println!("\t[SPAN] {:?}", span);
+        println!("\t[SPAN] <<< {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = image(tokens) {
-        println!("\t[SPAN] {:?}", span);
+        println!("\t[SPAN] <<< {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = emphasis(tokens) {
-        println!("\t[SPAN] {:?}", span);
+        println!("\t[SPAN] <<< {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = text(tokens) {
-        println!("\t[SPAN] {:?}", span);
+        println!("\t[SPAN] <<< {:?}", span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else {

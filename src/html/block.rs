@@ -1,6 +1,7 @@
 use super::html::Html;
 use md::block::{List, ListKind, ListLine};
-use md::{Block, Span, S};
+use md::Block;
+use s::S;
 
 impl Html for Block {
     fn html(&self) -> String {

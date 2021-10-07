@@ -18,37 +18,46 @@ enum HowToHandle {
 
 impl<T> S<T>
 where
-    T: Eq + fmt::Debug,
+    T: Eq + fmt::Debug + Clone,
 {
-    pub fn next_is_ignore<'a>(&'a self, target: &T) -> Result<(&'a T, &Self)> {
+    pub fn to_end<'a>(&'a self) -> (S<T>, &Self) {
+        if let Some(head) = self.head() {
+            let (car, cdr) = self.tail().to_end();
+            (S::cons(head.clone(), car), cdr)
+        } else {
+            (S::Nil, self.tail())
+        }
+    }
+
+    pub fn next_is_ignore<'a>(&'a self, target: T) -> Result<(&'a T, &Self)> {
         self.next_is(target, HowToHandle::Ignore)
     }
 
-    pub fn next_is_leave<'a>(&'a self, target: &T) -> Result<(&'a T, &Self)> {
+    pub fn next_is_leave<'a>(&'a self, target: T) -> Result<(&'a T, &Self)> {
         self.next_is(target, HowToHandle::Leave)
     }
 
-    fn next_is<'a>(&'a self, target: &T, how_to_handle: HowToHandle) -> Result<(&'a T, &Self)> {
+    fn next_is<'a>(&'a self, target: T, how_to_handle: HowToHandle) -> Result<(&'a T, &Self)> {
         if let Some(head) = self.head() {
-            if &head == &target {
+            if head == &target {
                 match how_to_handle {
                     HowToHandle::Ignore => Ok((head, self.tail())),
                     HowToHandle::Leave => Ok((head, self)),
                     HowToHandle::Include => panic!("unexpected"),
                 }
             } else {
-                Err(ScannerError::unexpected(target, head))
+                Err(ScannerError::unexpected(&target, head))
             }
         } else {
             Err(ScannerError::end())
         }
     }
 
-    pub fn next_are_ignore<'a>(&'a self, targets: &S<T>) -> Result<(S<&'a T>, &'a S<T>)> {
+    pub fn next_are_ignore<'a>(&'a self, targets: &S<T>) -> Result<(S<T>, &'a S<T>)> {
         self.next_are(targets, HowToHandle::Ignore)
     }
 
-    pub fn next_are_leave<'a>(&'a self, targets: &S<T>) -> Result<(S<&'a T>, &'a S<T>)> {
+    pub fn next_are_leave<'a>(&'a self, targets: &S<T>) -> Result<(S<T>, &'a S<T>)> {
         self.next_are(targets, HowToHandle::Leave)
     }
 
@@ -56,7 +65,7 @@ where
         &'a self,
         targets: &S<T>,
         how_to_handle: HowToHandle,
-    ) -> Result<(S<&'a T>, &'a S<T>)> {
+    ) -> Result<(S<T>, &'a S<T>)> {
         let ok = self
             .zip_with(targets, |t, target| t == target)
             .fold(true, |a, b| a && *b);
@@ -65,7 +74,7 @@ where
             match how_to_handle {
                 HowToHandle::Ignore => {
                     let length = targets.length();
-                    Ok(self.slice(length))
+                    Ok((self.head_before(length), self.tail_after(length)))
                 }
                 HowToHandle::Leave => Ok((self.head_before(targets.length()), self)),
                 HowToHandle::Include => panic!("unexpected"),
@@ -75,17 +84,17 @@ where
         }
     }
 
-    pub fn to_skip_ignore(&self, target: &T) -> Result<&Self> {
+    pub fn to_skip_ignore(&self, target: T) -> Result<&Self> {
         self.to_skip(target, HowToHandle::Ignore)
     }
 
-    pub fn to_skip_leave(&self, target: &T) -> Result<&Self> {
+    pub fn to_skip_leave(&self, target: T) -> Result<&Self> {
         self.to_skip(target, HowToHandle::Leave)
     }
 
-    fn to_skip(&self, target: &T, how_to_handle: HowToHandle) -> Result<&Self> {
+    fn to_skip(&self, target: T, how_to_handle: HowToHandle) -> Result<&Self> {
         if let Some(head) = self.head() {
-            Ok(if head == target {
+            Ok(if head == &target {
                 match how_to_handle {
                     HowToHandle::Ignore => self.tail(),
                     HowToHandle::Leave => self,
@@ -99,43 +108,42 @@ where
         }
     }
 
-    pub fn until_ignore<'a>(&'a self, target: &T) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn until_ignore<'a>(&'a self, target: T) -> Result<(S<T>, &'a Self)> {
         self.until(target, HowToHandle::Ignore)
     }
 
-    pub fn until_leave<'a>(&'a self, target: &T) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn until_leave<'a>(&'a self, target: T) -> Result<(S<T>, &'a Self)> {
         self.until(target, HowToHandle::Leave)
     }
 
-    pub fn until_include<'a>(&'a self, target: &T) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn until_include<'a>(&'a self, target: T) -> Result<(S<T>, &'a Self)> {
         self.until(target, HowToHandle::Include)
     }
 
-    fn until<'a>(&'a self, target: &T, how_to_handle: HowToHandle) -> Result<(S<&'a T>, &'a Self)> {
+    fn until<'a>(&'a self, target: T, how_to_handle: HowToHandle) -> Result<(S<T>, &'a Self)> {
         if let Some(head) = self.head() {
-            Ok(if head == target {
+            Ok(if head == &target {
                 match how_to_handle {
                     HowToHandle::Ignore => (S::Nil, self.tail()),
                     HowToHandle::Leave => (S::Nil, self),
-                    HowToHandle::Include => (S::unit(head), self.tail()),
+                    HowToHandle::Include => (S::unit(head.clone()), self.tail()),
                 }
             } else {
                 let (car, cdr) = self.tail().until(target, how_to_handle)?;
-                (S::cons(head, car), cdr)
+                (S::cons(head.clone(), car), cdr)
             })
         } else {
             Err(ScannerError::end())
         }
     }
 
-    pub fn until_targets_ignore<'a>(&'a self, targets: &S<T>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn until_targets_ignore<'a>(&'a self, targets: &S<T>) -> Result<(S<T>, &'a Self)> {
         self.until_targets(targets, HowToHandle::Ignore)
     }
-    pub fn until_targets_leave<'a>(&'a self, targets: &S<T>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn until_targets_leave<'a>(&'a self, targets: &S<T>) -> Result<(S<T>, &'a Self)> {
         self.until_targets(targets, HowToHandle::Leave)
     }
-
-    pub fn until_targets_include<'a>(&'a self, targets: &S<T>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn until_targets_include<'a>(&'a self, targets: &S<T>) -> Result<(S<T>, &'a Self)> {
         self.until_targets(targets, HowToHandle::Include)
     }
 
@@ -143,7 +151,7 @@ where
         &'a self,
         targets: &S<T>,
         how_to_handle: HowToHandle,
-    ) -> Result<(S<&'a T>, &'a Self)> {
+    ) -> Result<(S<T>, &'a Self)> {
         let ok = self
             .zip_with(&targets, |t, target| t == target)
             .fold(true, |a, b| a && *b);
@@ -156,26 +164,29 @@ where
                         Ok((S::Nil, self.tail_after(length)))
                     }
                     HowToHandle::Leave => Ok((S::Nil, self)),
-                    HowToHandle::Include => Ok(self.slice(targets.length())),
+                    HowToHandle::Include => {
+                        let length = targets.length();
+                        Ok((self.head_before(length), self.tail_after(length)))
+                    }
                 }
             } else {
                 let (car, cdr) = self.tail().until_targets(targets, how_to_handle)?;
-                Ok((S::cons(head, car), cdr))
+                Ok((S::cons(head.clone(), car), cdr))
             }
         } else {
             Err(ScannerError::end())
         }
     }
 
-    pub fn to_somewhere_ignore<'a>(&'a self, targets: &Vec<T>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn to_somewhere_ignore<'a>(&'a self, targets: &Vec<T>) -> Result<(S<T>, &'a Self)> {
         self.to_somewhere(targets, HowToHandle::Ignore)
     }
 
-    pub fn to_somewhere_leave<'a>(&'a self, targets: &Vec<T>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn to_somewhere_leave<'a>(&'a self, targets: &Vec<T>) -> Result<(S<T>, &'a Self)> {
         self.to_somewhere(targets, HowToHandle::Leave)
     }
 
-    pub fn to_somewhere_include<'a>(&'a self, targets: &Vec<T>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn to_somewhere_include<'a>(&'a self, targets: &Vec<T>) -> Result<(S<T>, &'a Self)> {
         self.to_somewhere(targets, HowToHandle::Include)
     }
 
@@ -183,7 +194,7 @@ where
         &'a self,
         targets: &Vec<T>,
         how_to_handle: HowToHandle,
-    ) -> Result<(S<&'a T>, &'a Self)> {
+    ) -> Result<(S<T>, &'a Self)> {
         if let Some(head) = self.head() {
             let include = targets.iter().fold(None, |result, current| match result {
                 Some(_) => result,
@@ -200,11 +211,11 @@ where
                 Some(_target) => match how_to_handle {
                     HowToHandle::Ignore => (S::Nil, self.tail()),
                     HowToHandle::Leave => (S::Nil, self),
-                    HowToHandle::Include => (S::unit(head), self.tail()),
+                    HowToHandle::Include => (S::unit(head.clone()), self.tail()),
                 },
                 None => {
                     let (car, cdr) = self.tail().to_somewhere(targets, how_to_handle)?;
-                    (S::cons(head, car), cdr)
+                    (S::cons(head.clone(), car), cdr)
                 }
             })
         } else {
@@ -212,17 +223,10 @@ where
         }
     }
 
-    pub fn to_end(&self) -> S<&T> {
-        if let Some(head) = self.head() {
-            S::cons(head, self.tail().to_end())
-        } else {
-            S::Nil
-        }
-    }
-
     pub fn many_ignore<'a>(&'a self, targets: &S<T>) -> Result<(usize, &'a Self)> {
         self.many(targets, HowToHandle::Ignore)
     }
+
     pub fn many_leave<'a>(&'a self, targets: &S<T>) -> Result<(usize, &'a Self)> {
         self.many(targets, HowToHandle::Leave)
     }
@@ -249,6 +253,7 @@ where
     pub fn many1_ignore<'a>(&'a self, targets: &S<T>) -> Result<(usize, &'a Self)> {
         self.many1(targets, HowToHandle::Ignore)
     }
+
     pub fn many1_leave<'a>(&'a self, targets: &S<T>) -> Result<(usize, &'a Self)> {
         self.many1(targets, HowToHandle::Leave)
     }
@@ -280,7 +285,7 @@ where
         how_to_handle: HowToHandle,
     ) -> Result<(&'a T, &'a Self)> {
         for t in someone.iter() {
-            let result = self.next_is(t, how_to_handle.clone());
+            let result = self.next_is(t.clone(), how_to_handle.clone());
             if let Ok(_) = result {
                 return result;
             }
@@ -288,11 +293,11 @@ where
         Err(ScannerError::message(""))
     }
 
-    pub fn next_are_or_ignore<'a>(&'a self, someone: &Vec<S<T>>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn next_are_or_ignore<'a>(&'a self, someone: &Vec<S<T>>) -> Result<(S<T>, &'a Self)> {
         self.next_are_or(someone, HowToHandle::Ignore)
     }
 
-    pub fn next_are_or_leave<'a>(&'a self, someone: &Vec<S<T>>) -> Result<(S<&'a T>, &'a Self)> {
+    pub fn next_are_or_leave<'a>(&'a self, someone: &Vec<S<T>>) -> Result<(S<T>, &'a Self)> {
         self.next_are_or(someone, HowToHandle::Leave)
     }
 
@@ -300,7 +305,7 @@ where
         &'a self,
         someone: &Vec<S<T>>,
         how_to_handle: HowToHandle,
-    ) -> Result<(S<&'a T>, &'a Self)> {
+    ) -> Result<(S<T>, &'a Self)> {
         for t in someone.iter() {
             let result = self.next_are(t, how_to_handle.clone());
             if let Ok(_) = result {
@@ -310,16 +315,36 @@ where
 
         Err(ScannerError::message(""))
     }
+
+    pub fn head_before(&self, to: usize) -> S<T> {
+        if to > 0 {
+            if let Some(head) = self.head() {
+                S::cons(head.clone(), self.tail().head_before(to - 1))
+            } else {
+                S::Nil
+            }
+        } else {
+            S::Nil
+        }
+    }
+}
+
+#[test]
+fn ts_to_end() {
+    assert_eq!(
+        S::from_vector(vec![1, 2]).to_end(),
+        (S::from_vector(vec![1, 2]), &S::Nil)
+    );
 }
 
 #[test]
 fn ts_next_is() {
     assert_eq!(
-        S::from_vector(vec![1, 2]).next_is_ignore(&1),
+        S::from_vector(vec![1, 2]).next_is_ignore(1),
         Ok((&1, &S::from_vector(vec![2])))
     );
     assert_eq!(
-        S::from_vector(vec![1, 2]).next_is_leave(&1),
+        S::from_vector(vec![1, 2]).next_is_leave(1),
         Ok((&1, &S::from_vector(vec![1, 2])))
     );
 }
@@ -328,18 +353,18 @@ fn ts_next_is() {
 fn ts_next_are() {
     assert_eq!(
         S::from_vector(vec![1, 1, 2]).next_are_ignore(&S::from_vector(vec![1, 1])),
-        Ok((S::from_vector(vec![&1, &1]), &S::from_vector(vec![2])))
+        Ok((S::from_vector(vec![1, 1]), &S::from_vector(vec![2])))
     );
 }
 
 #[test]
 fn ts_to_skip() {
     assert_eq!(
-        S::from_vector(vec![1, 2, 4,]).to_skip_ignore(&2),
+        S::from_vector(vec![1, 2, 4,]).to_skip_ignore(2),
         Ok(&S::from_vector(vec![4]))
     );
     assert_eq!(
-        S::from_vector(vec![1, 2, 4,]).to_skip_leave(&2),
+        S::from_vector(vec![1, 2, 4,]).to_skip_leave(2),
         Ok(&S::from_vector(vec![2, 4]))
     );
 }
@@ -347,16 +372,16 @@ fn ts_to_skip() {
 #[test]
 fn ts_until() {
     assert_eq!(
-        S::from_vector(vec![1, 2, 4, 2,]).until_ignore(&2),
-        Ok((S::from_vector(vec![&1]), &S::from_vector(vec![4, 2,])))
+        S::from_vector(vec![1, 2, 4, 2,]).until_ignore(2),
+        Ok((S::from_vector(vec![1]), &S::from_vector(vec![4, 2,])))
     );
     assert_eq!(
-        S::from_vector(vec![1, 2, 4, 2,]).until_leave(&2),
-        Ok((S::from_vector(vec![&1]), &S::from_vector(vec![2, 4, 2,])))
+        S::from_vector(vec![1, 2, 4, 2,]).until_leave(2),
+        Ok((S::from_vector(vec![1]), &S::from_vector(vec![2, 4, 2,])))
     );
     assert_eq!(
-        S::from_vector(vec![1, 2, 4, 2,]).until_include(&2),
-        Ok((S::from_vector(vec![&1, &2]), &S::from_vector(vec![4, 2])))
+        S::from_vector(vec![1, 2, 4, 2,]).until_include(2),
+        Ok((S::from_vector(vec![1, 2]), &S::from_vector(vec![4, 2])))
     );
 }
 
@@ -364,18 +389,15 @@ fn ts_until() {
 fn ts_until_targets() {
     assert_eq!(
         S::from_vector(vec![1, 2, 4, 2,]).until_targets_ignore(&S::from_vector(vec![4, 2])),
-        Ok((S::from_vector(vec![&1, &2]), &S::from_vector(vec![])))
+        Ok((S::from_vector(vec![1, 2]), &S::from_vector(vec![])))
     );
     assert_eq!(
         S::from_vector(vec![1, 2, 4, 2,]).until_targets_leave(&S::from_vector(vec![4, 2])),
-        Ok((S::from_vector(vec![&1, &2]), &S::from_vector(vec![4, 2])))
+        Ok((S::from_vector(vec![1, 2]), &S::from_vector(vec![4, 2])))
     );
     assert_eq!(
         S::from_vector(vec![1, 2, 4, 2,]).until_targets_include(&S::from_vector(vec![4, 2])),
-        Ok((
-            S::from_vector(vec![&1, &2, &4, &2]),
-            &S::from_vector(vec![])
-        ))
+        Ok((S::from_vector(vec![1, 2, 4, 2]), &S::from_vector(vec![])))
     );
 }
 
@@ -398,12 +420,20 @@ fn ts_next_are_or() {
             S::from_vector(vec![3, 3]),
             S::from_vector(vec![1, 1])
         ]),
-        Ok((S::from_vector(vec![&1, &1]), &S::from_vector(vec![2])))
+        Ok((S::from_vector(vec![1, 1]), &S::from_vector(vec![2])))
     );
 
     assert_eq!(
         S::from_vector(vec![1, 1, 2])
             .next_are_or_ignore(&vec![S::from_vector(vec![1]), S::from_vector(vec![1, 1])]),
-        Ok((S::from_vector(vec![&1]), &S::from_vector(vec![1, 2])))
+        Ok((S::from_vector(vec![1]), &S::from_vector(vec![1, 2])))
     );
+}
+
+#[test]
+fn ts_head_before() {
+    assert_eq!(
+        S::from_vector(vec![1, 2, 3, 4, 5]).head_before(2),
+        (S::from_vector(vec![1, 2]))
+    )
 }

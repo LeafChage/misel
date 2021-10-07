@@ -1,6 +1,6 @@
 use super::emphasis::EmphasisType;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum Span {
     Link(String, String),
     Emphasis(EmphasisType, String),

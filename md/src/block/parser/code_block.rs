@@ -1,5 +1,6 @@
 use super::super::block::Block;
 use crate::span;
+use crate::token_list::TokenList;
 use crate::tokenize::Token;
 use s::{Result, S};
 
@@ -9,7 +10,7 @@ pub fn code_block(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
         Token::BackQuote,
         Token::BackQuote,
     ]))?;
-    let (lang, tokens) = tokens.until_ignore(&Token::Newline)?;
+    let (lang, tokens) = tokens.until_ignore(Token::Newline)?;
     let (src, tokens) = tokens.until_targets_ignore(&S::from_vector(vec![
         Token::BackQuote,
         Token::BackQuote,
@@ -17,7 +18,7 @@ pub fn code_block(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
         Token::Newline,
     ]))?;
     Ok((
-        Block::CodeBlock(lang.to_string(), span::Span::text(src.to_string())),
+        Block::CodeBlock(lang.show(), span::Span::text(src.show())),
         tokens,
     ))
 }

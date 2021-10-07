@@ -1,4 +1,5 @@
 use super::super::span::Span;
+use crate::token_list::TokenList;
 use crate::tokenize::Token;
 use s::{Result, ScannerError, S};
 
@@ -9,6 +10,8 @@ pub fn text(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
         Token::Asterisk,
         Token::BackQuote,
         Token::ExclamationMark,
+        Token::EOF,
+        Token::Newline,
     ];
 
     let (head, tokens) = if let Ok(_) = tokens.next_is_or_ignore(&vec![Token::EOF, Token::Newline])
@@ -19,22 +22,25 @@ pub fn text(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
         // next value is reserved token
         Ok((find_list, tokens))
     } else if let Some(h) = tokens.head() {
-        Ok((h.clone(), tokens.tail()))
+        Ok((h, tokens.tail()))
     } else {
         // next value is nothing
         Err(ScannerError::end())
     }?;
 
-    let (src, tokens) = tokens.to_somewhere_leave(&reserved_tokens)?;
+    let (src, tokens) = if let Ok(result) = tokens.to_somewhere_leave(&reserved_tokens) {
+        result
+    } else {
+        tokens.to_end()
+    };
 
     let src = S::cons(head.clone(), src);
     let chmoped_text = src.chmop();
     if chmoped_text.length() == 0 {
         // only space
-        Ok((Span::text(src.to_string()), tokens))
-        // Ok((Span::text(src.string()), tokens))
+        Ok((Span::text(src.show()), tokens))
     } else {
-        Ok((Span::text(chmoped_text.string()), tokens))
+        Ok((Span::text(chmoped_text.show()), tokens))
     }
 }
 

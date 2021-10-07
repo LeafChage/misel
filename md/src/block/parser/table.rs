@@ -1,13 +1,14 @@
 use super::super::block::Block;
 use crate::span;
 use crate::span::Span;
+use crate::token_list::TokenList;
 use crate::tokenize::Token;
 use s::{Result, S};
 
 fn table_header(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(&Token::Pipe)?;
-    let (spans, tokens) = tokens.until_leave(&Token::Pipe)?;
-    let text = Span::text(spans.to_string());
+    let (_, tokens) = tokens.next_is_ignore(Token::Pipe)?;
+    let (spans, tokens) = tokens.until_leave(Token::Pipe)?;
+    let text = Span::text(spans.show());
 
     // will finish ?
     if let Ok((_, tokens)) =
@@ -21,8 +22,8 @@ fn table_header(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
 }
 
 fn table_under_header(tokens: &S<Token>) -> Result<&S<Token>> {
-    let (_, tokens) = tokens.next_is_ignore(&Token::Pipe)?;
-    let (_, tokens) = tokens.until_leave(&Token::Pipe)?;
+    let (_, tokens) = tokens.next_is_ignore(Token::Pipe)?;
+    let (_, tokens) = tokens.until_leave(Token::Pipe)?;
 
     // will finish ?
     if let Ok((_, tokens)) =
@@ -36,9 +37,9 @@ fn table_under_header(tokens: &S<Token>) -> Result<&S<Token>> {
 }
 
 fn table_body(tokens: &S<Token>) -> Result<(S<S<Span>>, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(&Token::Pipe)?;
-    let (column, tokens) = tokens.until_leave(&Token::Pipe)?;
-    let (spans, _) = span::parse(&column.push(&Token::EOF))?;
+    let (_, tokens) = tokens.next_is_ignore(Token::Pipe)?;
+    let (column, tokens) = tokens.until_leave(Token::Pipe)?;
+    let (spans, _) = span::parse(&column.push(Token::EOF))?;
 
     // will finish ?
     if let Ok((_, tokens)) =

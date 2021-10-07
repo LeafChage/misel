@@ -1,5 +1,6 @@
 use super::html::Html;
-use md::{Block, S};
+use md::Block;
+use s::S;
 
 impl Html for S<Block> {
     fn html(&self) -> String {

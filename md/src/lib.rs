@@ -5,11 +5,11 @@ extern crate s;
 pub mod block;
 pub mod error;
 pub mod span;
+pub mod token_list;
 pub mod tokenize;
 
 pub use block::Block;
-pub use error::parser::{ParseError, Result};
-use s::S;
+use s::{Result, ScannerError, S};
 pub use span::Span;
 
 pub fn parser(src: &str) -> Result<S<Block>> {
@@ -17,7 +17,7 @@ pub fn parser(src: &str) -> Result<S<Block>> {
         let (blocks, _) = block::parse(&tokens)?;
         Ok(blocks)
     } else {
-        Err(ParseError::message("unexpected"))
+        Err(ScannerError::message("unexpected"))
     }
 }
 

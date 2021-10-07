@@ -1,5 +1,3 @@
-use s::S;
-
 #[derive(Eq, PartialEq, Debug, Clone)]
 pub enum Token {
     Sharp,             // #
@@ -30,49 +28,29 @@ impl Token {
         Token::Text(str.into())
     }
 
-    pub fn v(&self) -> &str {
+    pub fn show(&self) -> String {
         match self {
-            &Token::Sharp => "#",
-            &Token::AngleBracketEnd => ">",
-            &Token::BackQuote => "`",
-            &Token::UnderScore => "_",
-            &Token::Asterisk => "*",
-            &Token::Hyphen => "-",
-            &Token::Plus => "+",
-            &Token::Dot => ".",
-            &Token::BlockBracketStart => "[",
-            &Token::BlockBracketEnd => "]",
-            &Token::ExclamationMark => "!",
-            &Token::BracketStart => "(",
-            &Token::BracketEnd => ")",
-            &Token::Pipe => "|",
-            &Token::Colon => ":",
-            &Token::Space => " ",
-            &Token::Indent => "\t",
-            &Token::Newline => "\n",
-            &Token::Text(ref s) => s,
-            &Token::Index(_) => panic!("unexpected"),
+            &Token::Sharp => "#".to_string(),
+            &Token::AngleBracketEnd => ">".to_string(),
+            &Token::BackQuote => "`".to_string(),
+            &Token::UnderScore => "_".to_string(),
+            &Token::Asterisk => "*".to_string(),
+            &Token::Hyphen => "-".to_string(),
+            &Token::Plus => "+".to_string(),
+            &Token::Dot => ".".to_string(),
+            &Token::BlockBracketStart => "[".to_string(),
+            &Token::BlockBracketEnd => "]".to_string(),
+            &Token::ExclamationMark => "!".to_string(),
+            &Token::BracketStart => "(".to_string(),
+            &Token::BracketEnd => ")".to_string(),
+            &Token::Pipe => "|".to_string(),
+            &Token::Colon => ":".to_string(),
+            &Token::Space => " ".to_string(),
+            &Token::Indent => "\t".to_string(),
+            &Token::Newline => "\n".to_string(),
+            &Token::Text(ref s) => s.to_string(),
+            &Token::Index(n) => format!("{}. ", n),
             &Token::EOF => panic!("unexpected"),
-        }
-    }
-}
-
-impl ToString for S<Token> {
-    fn to_string(&self) -> String {
-        if let Some(head) = self.head() {
-            format!("{}{}", head.v(), self.tail().to_string())
-        } else {
-            String::new()
-        }
-    }
-}
-
-impl ToString for S<&Token> {
-    fn to_string(&self) -> String {
-        if let Some(head) = self.head() {
-            format!("{}{}", head.v(), self.tail().to_string())
-        } else {
-            String::new()
         }
     }
 }

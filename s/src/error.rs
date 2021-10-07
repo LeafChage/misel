@@ -17,7 +17,7 @@ impl ScannerError {
 
     pub fn not_found<T>(expected: &S<T>) -> Self
     where
-        T: fmt::Debug + Eq,
+        T: fmt::Debug + Eq + Clone,
     {
         ScannerError {
             msg: format!("not found {:?}", expected),

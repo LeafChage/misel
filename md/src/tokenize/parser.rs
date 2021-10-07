@@ -52,7 +52,7 @@ parser! {
 }
 
 parser! {
-    pub fn parse[Input]()(Input) -> Vec<Token>
+    pub fn parse[Input]()(Input) -> S<Token>
         where [
         Input: Stream<Token = char>,
         ]
@@ -80,7 +80,7 @@ parser! {
         )).map(|d| {
             println!("{:?}", d);
             d
-        }).and(eof().map(|_| vec![Token::EOF].concat()S::cons(Token::EOF, S::Nil))
+        }).and(eof().map(|_| S::cons(Token::EOF, S::Nil))
         .or(parse()))
         .map(|(car, cdr)| S::cons(car, cdr))
     }

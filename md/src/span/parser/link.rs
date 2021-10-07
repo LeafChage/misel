@@ -1,13 +1,14 @@
 use super::super::span::Span;
+use crate::token_list::TokenList;
 use crate::tokenize::Token;
 use s::{Result, S};
 
 pub fn link(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(&Token::BlockBracketStart)?;
-    let (label, tokens) = tokens.until_ignore(&Token::BlockBracketEnd)?;
-    let (_, tokens) = tokens.next_is_ignore(&Token::BracketStart)?;
-    let (href, tokens) = tokens.until_ignore(&Token::BracketEnd)?;
-    Ok((Span::link(label.to_string(), href.to_string()), tokens))
+    let (_, tokens) = tokens.next_is_ignore(Token::BlockBracketStart)?;
+    let (label, tokens) = tokens.until_ignore(Token::BlockBracketEnd)?;
+    let (_, tokens) = tokens.next_is_ignore(Token::BracketStart)?;
+    let (href, tokens) = tokens.until_ignore(Token::BracketEnd)?;
+    Ok((Span::link(label.show(), href.show()), tokens))
 }
 
 #[test]
