@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate md;
+extern crate s;
 
 mod html;
 use clap::{App, Arg, ArgMatches};

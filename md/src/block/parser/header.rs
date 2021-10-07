@@ -1,12 +1,11 @@
 use super::super::block::Block;
-use crate::parser::error::parser::Result;
-use crate::parser::s::S;
 use crate::span;
 use crate::tokenize::Token;
+use s::{Result, S};
 
 pub fn header(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
-    let (level, tokens) = tokens.many1_ignore(S::from_vector(vec![Token::Sharp]))?;
-    let (_, tokens) = tokens.many1_ignore(S::from_vector(vec![Token::Space]))?;
+    let (level, tokens) = tokens.many1_ignore(&S::from_vector(vec![Token::Sharp]))?;
+    let (_, tokens) = tokens.many1_ignore(&S::from_vector(vec![Token::Space]))?;
     let newline = tokens.until_include(Token::Newline);
     let eof = tokens.until_include(Token::EOF);
     let (src, tokens) = match (&newline, &eof) {
@@ -15,7 +14,8 @@ pub fn header(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
         (Err(_), Err(_)) => newline,
     }?;
 
-    let (spans, _) = span::parse(&src)?;
+    let added_eof = src.push(Token::EOF);
+    let (spans, _) = span::parse(&added_eof)?;
     Ok((Block::Header(level as u32, spans), tokens))
 }
 

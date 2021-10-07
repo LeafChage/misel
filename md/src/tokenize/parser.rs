@@ -1,7 +1,7 @@
 use super::token::Token;
-use crate::parser::s::S;
 use combine::parser::char::digit;
 use combine::{attempt, choice, eof, look_ahead, many, many1, satisfy, token, Stream};
+use s::S;
 use std::vec::*;
 
 fn is_reserved_token(c: char) -> bool {

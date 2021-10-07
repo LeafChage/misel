@@ -1,5 +1,6 @@
 use super::html::Html;
-use md::{Span, S};
+use md::Span;
+use s::S;
 
 impl Html for S<Span> {
     fn html(&self) -> String {

@@ -1,14 +1,13 @@
 use super::super::block::Block;
-use crate::parser::error::parser::{ParseError, Result};
-use crate::parser::s::S;
 use crate::tokenize::Token;
+use s::{Result, ScannerError, S};
 
 fn horizontal_rules_with_target(
     tokens: &S<Token>,
     horizontal_token: Token,
     devide_space: bool,
 ) -> Result<(Block, &S<Token>)> {
-    let (_, tokens) = tokens.next_are_ignore(S::from_vector(if devide_space {
+    let (_, tokens) = tokens.next_are_ignore(&S::from_vector(if devide_space {
         vec![
             horizontal_token.clone(),
             Token::Space,
@@ -24,7 +23,7 @@ fn horizontal_rules_with_target(
         ]
     }))?;
 
-    let (_, tokens) = tokens.many_ignore(S::from_vector(if devide_space {
+    let (_, tokens) = tokens.many_ignore(&S::from_vector(if devide_space {
         vec![Token::Space, horizontal_token]
     } else {
         vec![horizontal_token]
@@ -48,11 +47,11 @@ pub fn horizontal_rules(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
     } else if let Ok(v) = horizontal_rules_with_target(tokens, Token::UnderScore, false) {
         Ok(v)
     } else {
-        Err(ParseError::eof(vec![
+        Err(ScannerError::not_found(&S::from_vector(vec![
             Token::Asterisk,
             Token::UnderScore,
             Token::Hyphen,
-        ]))
+        ])))
     }
 }
 

@@ -1,12 +1,12 @@
 use super::super::span::Span;
-use crate::parser::error::parser::Result;
-use crate::parser::s::S;
+use crate::token_list::TokenList;
 use crate::tokenize::Token;
+use s::{Result, S};
 
 pub fn code(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
     let (_, tokens) = tokens.next_is_ignore(Token::BackQuote)?;
     let (code, tokens) = tokens.until_ignore(Token::BackQuote)?;
-    Ok((Span::code(code.string()), tokens))
+    Ok((Span::code(code.show()), tokens))
 }
 
 #[test]

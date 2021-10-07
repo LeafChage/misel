@@ -64,7 +64,7 @@ where
     pub fn zip_with<'a, F, J>(&'a self, others: &'a S<T>, f: F) -> S<J>
     where
         F: Fn(&'a T, &'a T) -> J,
-        J: Eq + fmt::Debug,
+        J: Eq + fmt::Debug + Clone,
     {
         let car = self.head();
         let cadr = self.tail().head();
@@ -87,6 +87,14 @@ where
         match &*self {
             S::Cons(head, _) => Some(head),
             S::Nil => None,
+        }
+    }
+
+    // move new list
+    pub fn push(self, t: T) -> S<T> {
+        match self {
+            S::Cons(head, tail) => S::cons(head, tail.push(t)),
+            S::Nil => S::unit(t),
         }
     }
 
@@ -139,7 +147,6 @@ fn ts_zipwith() {
         S::from_vector(vec![5, 7, 9])
     )
 }
-
 #[test]
 fn ts_tail_after() {
     assert_eq!(

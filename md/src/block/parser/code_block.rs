@@ -1,24 +1,24 @@
 use super::super::block::Block;
-use crate::parser::error::parser::Result;
-use crate::parser::s::S;
 use crate::span;
+use crate::token_list::TokenList;
 use crate::tokenize::Token;
+use s::{Result, S};
 
 pub fn code_block(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
-    let (_, tokens) = tokens.next_are_ignore(S::from_vector(vec![
+    let (_, tokens) = tokens.next_are_ignore(&S::from_vector(vec![
         Token::BackQuote,
         Token::BackQuote,
         Token::BackQuote,
     ]))?;
     let (lang, tokens) = tokens.until_ignore(Token::Newline)?;
-    let (src, tokens) = tokens.until_targets_ignore(S::from_vector(vec![
+    let (src, tokens) = tokens.until_targets_ignore(&S::from_vector(vec![
         Token::BackQuote,
         Token::BackQuote,
         Token::BackQuote,
         Token::Newline,
     ]))?;
     Ok((
-        Block::CodeBlock(lang.string(), span::Span::text(src.string())),
+        Block::CodeBlock(lang.show(), span::Span::text(src.show())),
         tokens,
     ))
 }
@@ -33,6 +33,7 @@ for(int i = 0; i < 10; i++) {
     console.log(i);
 }
 ```
+hi
 "#
             )
             .unwrap()

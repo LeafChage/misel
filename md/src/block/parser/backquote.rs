@@ -1,14 +1,13 @@
 use super::super::block::Block;
-use crate::parser::error::parser::Result;
-use crate::parser::s::S;
 use crate::span;
 use crate::tokenize::Token;
+use s::{Result, S};
 
 pub fn backquote(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
     let (_, tokens) =
-        tokens.until_targets_ignore(S::from_vector(vec![Token::AngleBracketEnd, Token::Space]))?;
+        tokens.next_are_ignore(&S::from_vector(vec![Token::AngleBracketEnd, Token::Space]))?;
     let (depth, tokens) =
-        tokens.many_ignore(S::from_vector(vec![Token::AngleBracketEnd, Token::Space]))?;
+        tokens.many_ignore(&S::from_vector(vec![Token::AngleBracketEnd, Token::Space]))?;
 
     let newline = tokens.until_include(Token::Newline);
     let eof = tokens.until_include(Token::EOF);
@@ -17,7 +16,7 @@ pub fn backquote(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
         (Err(_), Ok(_)) => eof,
         (Err(_), Err(_)) => newline,
     }?;
-    let (spans, _) = span::parse(&src)?;
+    let (spans, _) = span::parse(&src.push(Token::EOF))?;
 
     Ok((Block::Backquote((depth + 1) as u32, spans), tokens))
 }

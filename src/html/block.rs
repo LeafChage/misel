@@ -1,14 +1,15 @@
 use super::html::Html;
 use md::block::{List, ListKind, ListLine};
-use md::{Block, Span, S};
+use md::Block;
+use s::S;
 
 impl Html for Block {
     fn html(&self) -> String {
         match self {
             Block::Header(level, list) => format!("<h{}>{}</h{}>", level, list.html(), level),
-            Block::Backquote(_level, _list) => format!(""),
+            Block::Backquote(_level, list) => format!("<backquote>{}</backquote>", list.html()),
             Block::List(l) => format!("{}", l.html()),
-            Block::CodeBlock(_lang, src) => format!("<div>{}</div>", Span::html(src)),
+            Block::CodeBlock(lang, src) => format!("<div class=\"{}\">{}</div>", lang, src.html()),
             Block::HorizontalRules => format!("</hr>"),
             Block::Vanilla(list) => format!("<p>{}</p>", list.html()),
             Block::Table(headers, bodies) => format!(

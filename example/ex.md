@@ -1,30 +1,48 @@
-# Portfolio
+# LeafChage
 ---
 
-## Name
-**LeafChage**
+## Profile
+### Name
+Takaya Kusanagi.
 
-## My favorite code
-```js
-console.log("hello world");
-```
-Do you like it?.
+Please call me chage.
 
-## Like Food
-+ Fruit
-  1. Apple
-  2. Orange
-  3. indent count have to 2space (sorry)
-+ Meat
+## Skill
+### Golang
+WebAPI
 
-## Image
-![image](https://avatars.githubusercontent.com/u/18657444?s=48&v=4)
+### PHP
+WebAPI
 
-## Link
-[misel](https://github.com/LeafChage/misel)
+### TypeScript
+WebAPI with Express and TypeORM.
 
-## Table
-|header1|header2|header3|
-|---|---|---|
-|body11|body12|body13|
-|body21|body22|body23|
+Website with React.
+
+I don't like css. look at this portfolio.
+
+### Unity
+I use it with C#.
+
+I'm not good with 3DCG.
+
+
+## Little Funny Products
+### [vivox-token](https://www.npmjs.com/package/vivox-token)
+Makeing VAT for typescript and javascript.
+
+### [egak](https://github.com/LeafChage/egak)
+Sample image generator
+
+
+### [Bee](https://github.com/LeafChage/Bee)
+Structured Logging for C#
+
+### [misel](https://github.com/LeafChage/misel)
+Comming soon.
+
+This page is parsed by misel.
+
+This parse from markdown to html, and generate the slide.
+
+
