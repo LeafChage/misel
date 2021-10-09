@@ -53,4 +53,27 @@ impl Token {
             &Token::EOF => panic!("unexpected"),
         }
     }
+
+    pub fn is_reserved(c: char) -> bool {
+        matches!(
+            c,
+            '#' | '>'
+                | '`'
+                | '_'
+                | '*'
+                | '-'
+                | '+'
+                | '.'
+                | '['
+                | ']'
+                | '!'
+                | '('
+                | ')'
+                | '|'
+                | ':'
+                | ' '
+                | '\t'
+                | '\n'
+        )
+    }
 }

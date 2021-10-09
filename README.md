@@ -30,3 +30,6 @@ Coming soon.
         * [x] support quote
         * [x] support code block
         * [x] support head
+
+# Reference
+[https://docs.github.com/ja/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax](https://docs.github.com/ja/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
