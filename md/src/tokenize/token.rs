@@ -19,7 +19,7 @@ pub enum Token {
     Indent,
     Newline,
     Text(String),
-    Index(usize),
+    Number(usize),
     EOF,
 }
 
@@ -49,7 +49,7 @@ impl Token {
             &Token::Indent => "\t".to_string(),
             &Token::Newline => "\n".to_string(),
             &Token::Text(ref s) => s.to_string(),
-            &Token::Index(n) => format!("{}. ", n),
+            &Token::Number(n) => n.to_string(),
             &Token::EOF => panic!("unexpected"),
         }
     }

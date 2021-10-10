@@ -71,8 +71,9 @@ fn first_token_in_same_depth(tokens: &S<Token>, depth: usize) -> Result<Token> {
         Ok(Token::Plus)
     } else if let Ok(_) = tails.next_is_leave(Token::Hyphen) {
         Ok(Token::Hyphen)
-    } else if let Ok(_) = tails.next_are_leave(&S::from_vector(vec![Token::Index(1), Token::Dot])) {
-        Ok(Token::Index(1))
+    } else if let Ok(_) = tails.next_are_leave(&S::from_vector(vec![Token::Number(1), Token::Dot]))
+    {
+        Ok(Token::Number(1))
     } else {
         Err(ScannerError::not_found(&S::from_vector(vec![
             &Token::Asterisk,
