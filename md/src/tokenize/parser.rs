@@ -24,20 +24,12 @@ parser! {
 }
 
 parser! {
-    pub fn index[Input]()(Input) -> Token
+    pub fn number[Input]()(Input) -> Token
         where [
         Input: Stream<Token = char>,
         ]
     {
-        many1(digit())
-            .and(look_ahead(token('.')))
-            .map(|(nums, _dot): (Vec<char>, char)| {
-                let num = nums.iter()
-                    .collect::<String>()
-                    .parse::<usize>()
-                    .unwrap();
-                Token::Index(num)
-            })
+        digit().map(|n| Token::Number(n.to_digit(10).unwrap() as usize))
     }
 }
 
@@ -47,7 +39,7 @@ parser! {
         Input: Stream<Token = char>,
         ]
     {
-        attempt(index()).or(text())
+        attempt(number()).or(text())
     }
 }
 
@@ -137,13 +129,16 @@ for(int i = 0; i < 10; i++) {
                 Token::Space,
                 Token::text("="),
                 Token::Space,
-                Token::text("0;"),
+                Token::Number(0),
+                Token::text(";"),
                 Token::Space,
                 Token::text("i"),
                 Token::Space,
                 Token::text("<"),
                 Token::Space,
-                Token::text("10;"),
+                Token::Number(1),
+                Token::Number(0),
+                Token::text(";"),
                 Token::Space,
                 Token::text("i"),
                 Token::Plus,
