@@ -29,7 +29,10 @@ parser! {
         Input: Stream<Token = char>,
         ]
     {
-        digit().map(|n| Token::Number(n.to_digit(10).unwrap() as usize))
+        many1(digit()).map(|numbers: Vec<char>| Token::Number(numbers.into_iter()
+                .collect::<String>()
+                .parse::<usize>()
+                .unwrap()))
     }
 }
 
@@ -136,8 +139,7 @@ for(int i = 0; i < 10; i++) {
                 Token::Space,
                 Token::text("<"),
                 Token::Space,
-                Token::Number(1),
-                Token::Number(0),
+                Token::Number(10),
                 Token::text(";"),
                 Token::Space,
                 Token::text("i"),
