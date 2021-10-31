@@ -13,7 +13,7 @@ impl ListKind {
     pub fn from_token(token: &Token) -> Self {
         match token {
             &Token::Asterisk | &Token::Hyphen | &Token::Plus => ListKind::Unordered,
-            &Token::Index(_n) => ListKind::Ordered,
+            &Token::Number(_n) => ListKind::Ordered,
             _ => ListKind::Nil,
         }
     }
@@ -36,7 +36,7 @@ impl ListLine {
     pub fn next_list_target(token: &Token) -> Token {
         match token {
             &Token::Asterisk | &Token::Hyphen | &Token::Plus => token.clone(),
-            &Token::Index(n) => Token::Index(n + 1),
+            &Token::Number(n) => Token::Number(n + 1),
             _ => unimplemented!(),
         }
     }
@@ -46,7 +46,7 @@ impl ListLine {
             &Token::Asterisk | &Token::Hyphen | &Token::Plus => {
                 S::from_vector(vec![target.clone(), Token::Space])
             }
-            &Token::Index(_) => S::from_vector(vec![target.clone(), Token::Dot, Token::Space]),
+            &Token::Number(_) => S::from_vector(vec![target.clone(), Token::Dot, Token::Space]),
             _ => unimplemented!(),
         }
     }

@@ -27,48 +27,58 @@ fn reserved_token(data: &S<u8>) -> Result<(Token, &S<u8>)> {
     Ok((t, data.tail()))
 }
 
-fn text(data: &S<u8>) -> Result<(Token, &S<u8>)> {
-    // parser! {
-    //     pub fn text[Input]()(Input) -> Token
-    //         where [
-    //         Input: Stream<Token = char>,
-    //         ]
-    //     {
-    //         many::<Vec<_>, _, _>(satisfy(|c| !Token::is_reserved(c)))
-    //             .map(|chars| Token::text(chars.iter().collect::<String>()))
-    //     }
-    // }
-    let (chars, data) = data.next_are_leave(&S::from_vector(vec![
-        b'#', b'>', b'`', b'_', b'*', b'-', b'+', b'.', b'[', b']', b'!', b'(', b')', b'|', b':',
-        b' ', b'\t', b'\n',
-    ]))?;
-    Ok((Token::text(""), data))
+fn reserved_tokens() -> Vec<u8> {
+    Token::values()
+        .into_iter()
+        .map(|v| v.raw())
+        .filter(|v| v.is_some())
+        .map(|v| v.unwrap())
+        .collect()
 }
-// parser! {
-//     pub fn index[Input]()(Input) -> Token
-//         where [
-//         Input: Stream<Token = char>,
-//         ]
-//     {
-//         many1(digit())
-//             .and(look_ahead(token('.')))
-//             .map(|(nums, _dot): (Vec<char>, char)| {
-//                 let num = nums.iter()
-//                     .collect::<String>()
-//                     .parse::<usize>()
-//                     .unwrap();
-//                 Token::Index(num)
-//             })
-//     }
-// }
-//
+
+fn text(data: &S<u8>) -> Result<(Token, &S<u8>)> {
+    let (output, data) = data.until_targets_ignore(&S::from_vector(reserved_tokens()))?;
+    let v = String::from_utf8(output.to_vector().into_iter().map(|v| v.clone()).collect()).unwrap();
+    Ok((Token::text(v), data))
+}
+
+fn number(data: &S<u8>) -> Result<(Token, &S<u8>)> {
+    // pub fn number[Input]()(Input) -> Token
+    //     where [
+    //     Input: Stream<Token = char>,
+    //     ]
+    // {
+    //     many1(digit()).map(|numbers: Vec<char>| Token::Number(numbers.into_iter()
+    //             .collect::<String>()
+    //             .parse::<usize>()
+    //             .unwrap()))
+    // }
+
+    let (n, data) = data.next_is_or_ignore(&vec![
+        b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9',
+    ])?;
+
+    let numbers = vec![n];
+    while let Ok((n, d)) = data.next_is_or_ignore(&vec![
+        b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9',
+    ]) {
+        numbers.push(n);
+        data = d;
+    }
+
+    Ok((Token::Number(numbers.into_iter()
+                .collect::<String>()
+                .parse::<usize>()
+                .unwrap(), data))
+}
+
 // parser! {
 //     pub fn other[Input]()(Input) -> Token
 //         where [
 //         Input: Stream<Token = char>,
 //         ]
 //     {
-//         attempt(index()).or(text())
+//         attempt(number()).or(text())
 //     }
 // }
 //
@@ -106,7 +116,7 @@ fn text(data: &S<u8>) -> Result<(Token, &S<u8>)> {
 //         .map(|(car, cdr)| S::cons(car, cdr))
 //     }
 // }
-
+//
 // #[test]
 // fn ts_parse() {
 //     use combine::EasyParser;
@@ -158,13 +168,15 @@ fn text(data: &S<u8>) -> Result<(Token, &S<u8>)> {
 //                 Token::Space,
 //                 Token::text("="),
 //                 Token::Space,
-//                 Token::text("0;"),
+//                 Token::Number(0),
+//                 Token::text(";"),
 //                 Token::Space,
 //                 Token::text("i"),
 //                 Token::Space,
 //                 Token::text("<"),
 //                 Token::Space,
-//                 Token::text("10;"),
+//                 Token::Number(10),
+//                 Token::text(";"),
 //                 Token::Space,
 //                 Token::text("i"),
 //                 Token::Plus,
