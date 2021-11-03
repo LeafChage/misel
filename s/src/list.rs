@@ -22,7 +22,7 @@ where
         S::Cons(head, Box::new(tail))
     }
 
-    pub fn from_vector(v: Vec<T>) -> Self {
+    pub fn from(v: Vec<T>) -> Self {
         v.into_iter().rev().fold(S::Nil, |l, head| S::cons(head, l))
     }
 
@@ -132,25 +132,25 @@ where
 
 #[test]
 fn ts_length() {
-    assert_eq!(S::from_vector(vec![1, 2, 3]).length(), 3,)
+    assert_eq!(S::from(vec![1, 2, 3]).length(), 3,)
 }
 
 #[test]
 fn ts_fold() {
-    assert_eq!(S::from_vector(vec![1, 2, 3]).fold(0, |a, b| a + b), 6,)
+    assert_eq!(S::from(vec![1, 2, 3]).fold(0, |a, b| a + b), 6,)
 }
 
 #[test]
 fn ts_zipwith() {
     assert_eq!(
-        S::from_vector(vec![1, 2, 3]).zip_with(&S::from_vector(vec![4, 5, 6]), |a, b| a + b),
-        S::from_vector(vec![5, 7, 9])
+        S::from(vec![1, 2, 3]).zip_with(&S::from(vec![4, 5, 6]), |a, b| a + b),
+        S::from(vec![5, 7, 9])
     )
 }
 #[test]
 fn ts_tail_after() {
     assert_eq!(
-        S::from_vector(vec![1, 2, 3, 4, 5]).tail_after(2),
-        &S::from_vector(vec![3, 4, 5])
+        S::from(vec![1, 2, 3, 4, 5]).tail_after(2),
+        &S::from(vec![3, 4, 5])
     )
 }

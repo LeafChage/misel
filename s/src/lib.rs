@@ -1,8 +1,25 @@
-mod a;
+// mod and;
 mod error;
-mod is;
 mod list;
-mod scanner;
+mod or;
+// mod scanner;
+mod how_to_handle;
+mod stream;
+mod token;
 
-pub use error::{Result, ScannerError};
+pub use error::ScannerError;
 pub use list::S;
+
+use std::fmt;
+use std::io::Result;
+use stream::Stream;
+
+pub trait Parser<Input, Output>
+where
+    Input: Eq + fmt::Debug + Clone + Copy,
+{
+    fn parse<'a, 'b>(
+        &self,
+        s: &'a mut Stream<Input>,
+    ) -> Result<(Option<&'a Output>, &'a Stream<Input>)>;
+}
