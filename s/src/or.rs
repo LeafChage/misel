@@ -1,5 +1,5 @@
-use super::token::Token;
-use super::{Parser, S};
+use super::stream::Stream;
+use super::Parser;
 use std::fmt;
 use std::io::{Error, ErrorKind, Result};
 use std::marker::PhantomData;
@@ -44,10 +44,11 @@ where
     T: Eq + fmt::Debug + Clone + Copy,
     P: Parser<T, T>,
 {
-    fn parse<'a, 'b>(&'a self, s: &'b S<T>) -> Result<(Option<T>, &'b S<T>)> {
+    fn parse<'a>(&self, s: &'a mut Stream<T>) -> Result<Option<&'a T>> {
         for v in self.values.iter() {
-            if let Ok(v) = v.parse(s) {
-                return Ok(v);
+            let result = v.parse(s);
+            if result.is_ok() {
+                return result;
             }
         }
         Err(Error::from(ErrorKind::UnexpectedEof))
