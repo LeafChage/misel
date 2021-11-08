@@ -1,14 +1,14 @@
 use super::super::span::Span;
 use crate::token_list::TokenList;
 use crate::tokenize::Token;
-use s::{Result, S};
+use s::{Mono, Result, S};
 
 pub fn image(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(Token::ExclamationMark)?;
-    let (_, tokens) = tokens.next_is_ignore(Token::BlockBracketStart)?;
-    let (alt, tokens) = tokens.until_ignore(Token::BlockBracketEnd)?;
-    let (_, tokens) = tokens.next_is_ignore(Token::BracketStart)?;
-    let (link, tokens) = tokens.until_ignore(Token::BracketEnd)?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::ExclamationMark).ignore())?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::BlockBracketStart).ignore())?;
+    let (alt, tokens) = tokens.until(&Mono::new(Token::BlockBracketEnd).ignore())?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::BracketStart).ignore())?;
+    let (link, tokens) = tokens.until(&Mono::new(Token::BracketEnd).ignore())?;
     Ok((Span::image(alt.show(), link.show()), tokens))
 }
 

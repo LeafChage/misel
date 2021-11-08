@@ -14,8 +14,7 @@ h1 {
 }
 
 h2 {
-    border-bottom: solid 1px gray;
-}
+border-bottom: solid 1px gray; }
 
 h3 {
     text-decoration: underline;
@@ -35,4 +34,15 @@ body {
 main {
     width: 80%;
     margin: 0 auto;
+}
+
+
+table > tbody > tr > th {
+    padding: 10px;
+    border-bottom: solid 4px #808080;
+}
+
+table > tbody > tr > td {
+    padding: 10px;
+    border-bottom: solid 1px #808080;
 }

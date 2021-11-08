@@ -41,12 +41,12 @@ impl ListLine {
         }
     }
 
-    pub fn need_parsed_targets(target: &Token) -> S<Token> {
+    pub fn need_parsed_targets(target: &Token) -> Vec<Token> {
         match target {
             &Token::Asterisk | &Token::Hyphen | &Token::Plus => {
-                S::from_vector(vec![target.clone(), Token::Space])
+                vec![target.clone(), Token::Space]
             }
-            &Token::Number(_) => S::from_vector(vec![target.clone(), Token::Dot, Token::Space]),
+            &Token::Number(_) => vec![target.clone(), Token::Dot, Token::Space],
             _ => unimplemented!(),
         }
     }

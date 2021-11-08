@@ -3,17 +3,15 @@ use crate::span;
 use crate::span::Span;
 use crate::token_list::TokenList;
 use crate::tokenize::Token;
-use s::{Result, S};
+use s::{And, Mono, Result, S};
 
 fn table_header(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(Token::Pipe)?;
-    let (spans, tokens) = tokens.until_leave(Token::Pipe)?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::Pipe).ignore())?;
+    let (spans, tokens) = tokens.until(&Mono::new(Token::Pipe).leave())?;
     let text = Span::text(spans.show());
 
     // will finish ?
-    if let Ok((_, tokens)) =
-        tokens.next_are_ignore(&S::from_vector(vec![Token::Pipe, Token::Newline]))
-    {
+    if let Ok((_, tokens)) = tokens.next(&And::from(vec![Token::Pipe, Token::Newline]).ignore()) {
         Ok((S::unit(text), tokens))
     } else {
         let (next_spans, tokens) = table_header(tokens)?;
@@ -22,13 +20,11 @@ fn table_header(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
 }
 
 fn table_under_header(tokens: &S<Token>) -> Result<&S<Token>> {
-    let (_, tokens) = tokens.next_is_ignore(Token::Pipe)?;
-    let (_, tokens) = tokens.until_leave(Token::Pipe)?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::Pipe).ignore())?;
+    let (_, tokens) = tokens.until(&Mono::new(Token::Pipe).leave())?;
 
     // will finish ?
-    if let Ok((_, tokens)) =
-        tokens.next_are_ignore(&S::from_vector(vec![Token::Pipe, Token::Newline]))
-    {
+    if let Ok((_, tokens)) = tokens.next(&And::from(vec![Token::Pipe, Token::Newline]).ignore()) {
         Ok(tokens)
     } else {
         let tokens = table_under_header(tokens)?;
@@ -37,14 +33,12 @@ fn table_under_header(tokens: &S<Token>) -> Result<&S<Token>> {
 }
 
 fn table_body(tokens: &S<Token>) -> Result<(S<S<Span>>, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(Token::Pipe)?;
-    let (column, tokens) = tokens.until_leave(Token::Pipe)?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::Pipe).ignore())?;
+    let (column, tokens) = tokens.until(&Mono::new(Token::Pipe).leave())?;
     let (spans, _) = span::parse(&column.push(Token::EOF))?;
 
     // will finish ?
-    if let Ok((_, tokens)) =
-        tokens.next_are_ignore(&S::from_vector(vec![Token::Pipe, Token::Newline]))
-    {
+    if let Ok((_, tokens)) = tokens.next(&And::from(vec![Token::Pipe, Token::Newline]).ignore()) {
         Ok((S::unit(spans), tokens))
     } else {
         let (next_spans, tokens) = table_body(tokens)?;
@@ -84,18 +78,18 @@ fn ts_parse_table() {
         )
         .map(|v| v.0),
         Ok(Block::Table(
-            S::from_vector(vec![
+            S::from(vec![
                 Span::text("header1"),
                 Span::text("header2"),
                 Span::text("header3"),
             ]),
-            S::from_vector(vec![
-                S::from_vector(vec![
+            S::from(vec![
+                S::from(vec![
                     S::unit(Span::text("body11")),
                     S::unit(Span::text("body12")),
                     S::unit(Span::text("body13")),
                 ]),
-                S::from_vector(vec![
+                S::from(vec![
                     S::unit(Span::text("body21")),
                     S::unit(Span::text("body22")),
                     S::unit(Span::text("body23")),

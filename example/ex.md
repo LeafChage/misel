@@ -2,10 +2,14 @@
 ---
 
 ## Profile
-### Name
-Takaya Kusanagi.
-
-Please call me chage.
+| key      | value                                       |
+| --       | --                                          |
+| Name     | Takaya Kusanagi                             |
+| Nickname | LeafChage                                   |
+| Birthday | 1995/10/08                                  |
+| Location | Tokyo                                       |
+| GitHub   | [LeafChage](https://github.com/LeafChage)   |
+| Twitter  | [@kusachage](https://twitter.com/kusachage) |
 
 ## Skill
 ### Golang
@@ -31,7 +35,7 @@ I'm not good with 3DCG.
 ### [vivox-token](https://www.npmjs.com/package/vivox-token)
 Makeing VAT for typescript and javascript.
 
-### [egak](https://github.com/LeafChage/egak)
+### [egak](https://crates.io/crates/egak)
 Sample image generator
 
 
@@ -39,10 +43,6 @@ Sample image generator
 Structured Logging for C#
 
 ### [misel](https://github.com/LeafChage/misel)
-Comming soon.
-
-This page is parsed by misel.
-
-This parse from markdown to html, and generate the slide.
+This page is parsed from markdown by misel.
 
 

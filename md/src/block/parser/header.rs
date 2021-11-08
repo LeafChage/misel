@@ -1,13 +1,13 @@
 use super::super::block::Block;
 use crate::span;
 use crate::tokenize::Token;
-use s::{Result, S};
+use s::{Mono, Result, S};
 
 pub fn header(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
-    let (level, tokens) = tokens.many1_ignore(&S::from_vector(vec![Token::Sharp]))?;
-    let (_, tokens) = tokens.many1_ignore(&S::from_vector(vec![Token::Space]))?;
-    let newline = tokens.until_include(Token::Newline);
-    let eof = tokens.until_include(Token::EOF);
+    let (level, _, tokens) = tokens.many1(&Mono::new(Token::Sharp).ignore())?;
+    let (_, _, tokens) = tokens.many1(&Mono::new(Token::Space).ignore())?;
+    let newline = tokens.until(&Mono::new(Token::Newline).include());
+    let eof = tokens.until(&Mono::new(Token::EOF).include());
     let (src, tokens) = match (&newline, &eof) {
         (Ok(_), _) => newline,
         (Err(_), Ok(_)) => eof,

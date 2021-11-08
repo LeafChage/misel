@@ -12,32 +12,32 @@ pub use text::text;
 
 use super::super::span::Span;
 use crate::tokenize::Token;
-use s::{Result, ScannerError, S};
+use s::{Mono, Result, ScannerError, S};
 
 pub fn parse(tokens: &S<Token>) -> Result<(S<Span>, &S<Token>)> {
     println!("\t[SPAN] {:?} >>>", tokens.head());
-    if let Ok((_, tokens)) = tokens.next_is_ignore(Token::EOF) {
+    if let Ok((_, tokens)) = tokens.next(&Mono::new(Token::EOF).ignore()) {
         Ok((S::Nil, tokens))
-    } else if let Ok((_, tokens)) = tokens.next_is_ignore(Token::Newline) {
+    } else if let Ok((_, tokens)) = tokens.next(&Mono::new(Token::Newline).ignore()) {
         Ok((S::Nil, tokens))
     } else if let Ok((span, tokens)) = link(tokens) {
-        println!("\t[SPAN] <<< {:?}", span);
+        println!("\t[SPAN] <<< {:?}", &span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = code(tokens) {
-        println!("\t[SPAN] <<< {:?}", span);
+        println!("\t[SPAN] <<< {:?}", &span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = image(tokens) {
-        println!("\t[SPAN] <<< {:?}", span);
+        println!("\t[SPAN] <<< {:?}", &span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = emphasis(tokens) {
-        println!("\t[SPAN] <<< {:?}", span);
+        println!("\t[SPAN] <<< {:?}", &span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else if let Ok((span, tokens)) = text(tokens) {
-        println!("\t[SPAN] <<< {:?}", span);
+        println!("\t[SPAN] <<< {:?}", &span);
         let (spans, tokens) = parse(tokens)?;
         Ok((S::cons(span, spans), tokens))
     } else {
@@ -55,7 +55,7 @@ fn ts_parse() {
                 S::cons(
                     Span::link("https://example.com", "javascript"),
                     S::cons(
-                        Span::text(" "),
+                        Span::text(""),
                         S::cons(
                             Span::code(r#"console.log("hello world");"#),
                             S::unit(

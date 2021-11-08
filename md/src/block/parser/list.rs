@@ -1,15 +1,18 @@
 use super::super::{Block, List, ListKind, ListLine};
 use crate::span;
 use crate::tokenize::Token;
-use s::{Result, ScannerError, S};
+use s::{And, Mono, Or, OrAnd, Result, ScannerError, S};
 
 fn list_with(tokens: &S<Token>, depth: usize, target: Token) -> Result<(S<ListLine>, &S<Token>)> {
     let mut tails = tokens;
     for _ in 0..depth {
-        if let Ok((_, t)) = tails.next_are_or_ignore(&vec![
-            S::from_vector(vec![Token::Space, Token::Space]),
-            S::from_vector(vec![Token::Indent]),
-        ]) {
+        if let Ok((_, t)) = tails.next(
+            &OrAnd::from(vec![
+                And::from(vec![Token::Space, Token::Space]),
+                And::from(vec![Token::Indent]),
+            ])
+            .ignore(),
+        ) {
             tails = t;
         } else {
             return Ok((S::Nil, tokens));
@@ -18,12 +21,12 @@ fn list_with(tokens: &S<Token>, depth: usize, target: Token) -> Result<(S<ListLi
 
     let parsed_depth_tokens = tails;
 
-    if let Ok(_) = parsed_depth_tokens.next_is_leave(target.clone()) {
+    if let Ok(_) = parsed_depth_tokens.next(&Mono::new(target.clone()).leave()) {
         // parse same level list
-        let (_, parsed_list_tokens) =
-            parsed_depth_tokens.next_are_ignore(&ListLine::need_parsed_targets(&target))?;
+        let (_, parsed_list_tokens) = parsed_depth_tokens
+            .next(&And::from(ListLine::need_parsed_targets(&target)).ignore())?;
         let (line, parsed_list_line) =
-            parsed_list_tokens.to_somewhere_include(&vec![Token::Newline, Token::EOF])?;
+            parsed_list_tokens.until(&Or::from(vec![Token::Newline, Token::EOF]).include())?;
         let (spans, _) = span::parse(&line.push(Token::EOF))?;
 
         // try to parse child list
@@ -58,24 +61,26 @@ fn list_with(tokens: &S<Token>, depth: usize, target: Token) -> Result<(S<ListLi
 fn first_token_in_same_depth(tokens: &S<Token>, depth: usize) -> Result<Token> {
     let mut tails = tokens;
     for _ in 0..depth {
-        let (_, t) = tails.next_are_or_ignore(&vec![
-            S::from_vector(vec![Token::Space, Token::Space]),
-            S::from_vector(vec![Token::Indent]),
-        ])?;
+        let (_, t) = tails.next(
+            &OrAnd::from(vec![
+                And::from(vec![Token::Space, Token::Space]),
+                And::from(vec![Token::Indent]),
+            ])
+            .ignore(),
+        )?;
         tails = t;
     }
 
-    if let Ok(_) = tails.next_is_leave(Token::Asterisk) {
+    if let Ok(_) = tails.next(&Mono::new(Token::Asterisk).leave()) {
         Ok(Token::Asterisk)
-    } else if let Ok(_) = tails.next_is_leave(Token::Plus) {
+    } else if let Ok(_) = tails.next(&Mono::new(Token::Plus).leave()) {
         Ok(Token::Plus)
-    } else if let Ok(_) = tails.next_is_leave(Token::Hyphen) {
+    } else if let Ok(_) = tails.next(&Mono::new(Token::Hyphen).leave()) {
         Ok(Token::Hyphen)
-    } else if let Ok(_) = tails.next_are_leave(&S::from_vector(vec![Token::Number(1), Token::Dot]))
-    {
+    } else if let Ok(_) = tails.next(&And::from(vec![Token::Number(1), Token::Dot]).leave()) {
         Ok(Token::Number(1))
     } else {
-        Err(ScannerError::not_found(&S::from_vector(vec![
+        Err(ScannerError::not_found(&S::from(vec![
             &Token::Asterisk,
             &Token::Plus,
             &Token::Hyphen,
@@ -111,7 +116,7 @@ mod test {
             .map(|v| v.0),
             Ok(Block::List(List::new(
                 ListKind::Unordered,
-                S::from_vector(vec![
+                S::from(vec![
                     ListLine::new(S::unit(Span::text("hello1")), List::nil()),
                     ListLine::new(S::unit(Span::text("hello2")), List::nil()),
                     ListLine::new(S::unit(Span::text("hello3")), List::nil()),
@@ -139,13 +144,13 @@ mod test {
             .map(|v| v.0),
             Ok(Block::List(List::new(
                 ListKind::Unordered,
-                S::from_vector(vec![
+                S::from(vec![
                     ListLine::new(S::unit(Span::text("hello1")), List::nil()),
                     ListLine::new(
                         S::unit(Span::text("hello2")),
                         List::new(
                             ListKind::Unordered,
-                            S::from_vector(vec![
+                            S::from(vec![
                                 ListLine::new(S::unit(Span::text("hello21")), List::nil()),
                                 ListLine::new(S::unit(Span::text("hello22")), List::nil()),
                                 ListLine::new(S::unit(Span::text("hello23")), List::nil()),
@@ -177,13 +182,13 @@ mod test {
             .map(|v| v.0),
             Ok(Block::List(List::new(
                 ListKind::Unordered,
-                S::from_vector(vec![
+                S::from(vec![
                     ListLine::new(S::unit(Span::text("hello1")), List::nil()),
                     ListLine::new(
                         S::unit(Span::text("hello2")),
                         List::new(
                             ListKind::Ordered,
-                            S::from_vector(vec![
+                            S::from(vec![
                                 ListLine::new(S::unit(Span::text("hello21")), List::nil()),
                                 ListLine::new(S::unit(Span::text("hello22")), List::nil()),
                                 ListLine::new(S::unit(Span::text("hello23")), List::nil()),
@@ -214,13 +219,13 @@ mod test {
             .map(|v| v.0),
             Ok(Block::List(List::new(
                 ListKind::Unordered,
-                S::from_vector(vec![
+                S::from(vec![
                     ListLine::new(S::unit(Span::text("hello1")), List::nil()),
                     ListLine::new(
                         S::unit(Span::text("hello2")),
                         List::new(
                             ListKind::Ordered,
-                            S::from_vector(vec![
+                            S::from(vec![
                                 ListLine::new(S::unit(Span::text("hello21")), List::nil()),
                                 ListLine::new(S::unit(Span::text("hello22")), List::nil()),
                                 ListLine::new(S::unit(Span::text("hello23")), List::nil()),
