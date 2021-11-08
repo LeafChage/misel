@@ -16,14 +16,14 @@ pub use vanilla::vanilla;
 
 use super::block::Block;
 use crate::tokenize::Token;
-use s::{Result, ScannerError, S};
+use s::{Mono, Result, ScannerError, S};
 
 pub fn parse(tokens: &S<Token>) -> Result<(S<Block>, &S<Token>)> {
     println!(
         "[Block] {:?} __________________________________________________",
         tokens.head()
     );
-    if let Ok((_, tokens)) = tokens.next_is_ignore(Token::EOF) {
+    if let Ok((_, tokens)) = tokens.next(&Mono::new(Token::EOF).ignore()) {
         Ok((S::Nil, tokens))
     } else if let Ok((block, tokens)) = header(tokens) {
         println!("[Block] {:?}", block);
@@ -96,9 +96,9 @@ for(int i = 0; i < 10; i++) {
             .unwrap(),
         )
         .map(|v| v.0),
-        Ok(S::from_vector(vec![
+        Ok(S::from(vec![
             Block::Header(1, S::unit(Span::text("Title"))),
-            Block::Vanilla(S::from_vector(vec![
+            Block::Vanilla(S::from(vec![
                 Span::text("I'm"),
                 Span::emphasis(EmphasisType::Emphasis, "chage"),
                 Span::text(".")
@@ -128,41 +128,26 @@ for(int i = 0; i < 10; i++) {
             Block::HorizontalRules,
             Block::List(List::new(
                 ListKind::Unordered,
-                S::from_vector(vec![
-                    ListLine::new(S::from_vector(vec![Span::text("List1")]), List::nil()),
+                S::from(vec![
+                    ListLine::new(S::from(vec![Span::text("List1")]), List::nil()),
                     ListLine::new(
-                        S::from_vector(vec![Span::text("List2")]),
+                        S::from(vec![Span::text("List2")]),
                         List::new(
                             ListKind::Unordered,
-                            S::from_vector(vec![
-                                ListLine::new(
-                                    S::from_vector(vec![Span::text("List21")]),
-                                    List::nil()
-                                ),
-                                ListLine::new(
-                                    S::from_vector(vec![Span::text("List22")]),
-                                    List::nil()
-                                ),
+                            S::from(vec![
+                                ListLine::new(S::from(vec![Span::text("List21")]), List::nil()),
+                                ListLine::new(S::from(vec![Span::text("List22")]), List::nil()),
                             ])
                         )
                     ),
                     ListLine::new(
-                        S::from_vector(vec![Span::text("List3")]),
+                        S::from(vec![Span::text("List3")]),
                         List::new(
                             ListKind::Ordered,
-                            S::from_vector(vec![
-                                ListLine::new(
-                                    S::from_vector(vec![Span::text("List31")]),
-                                    List::nil()
-                                ),
-                                ListLine::new(
-                                    S::from_vector(vec![Span::text("List32")]),
-                                    List::nil()
-                                ),
-                                ListLine::new(
-                                    S::from_vector(vec![Span::text("List33")]),
-                                    List::nil()
-                                ),
+                            S::from(vec![
+                                ListLine::new(S::from(vec![Span::text("List31")]), List::nil()),
+                                ListLine::new(S::from(vec![Span::text("List32")]), List::nil()),
+                                ListLine::new(S::from(vec![Span::text("List33")]), List::nil()),
                             ])
                         )
                     ),

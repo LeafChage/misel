@@ -1,46 +1,52 @@
 use super::super::span::Span;
 use crate::token_list::TokenList;
 use crate::tokenize::Token;
-use s::{Result, ScannerError, S};
+use s::{Or, Result, S};
 
+/// if first token is reserved , this is text
 pub fn text(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
-    let reserved_tokens = vec![
-        Token::BlockBracketStart,
-        Token::UnderScore,
-        Token::Asterisk,
-        Token::BackQuote,
-        Token::ExclamationMark,
-        Token::EOF,
-        Token::Newline,
-    ];
+    if let Ok((Some(head), tokens)) = tokens.next(
+        &Or::from(vec![
+            Token::BlockBracketStart,
+            Token::UnderScore,
+            Token::Asterisk,
+            Token::BackQuote,
+            Token::ExclamationMark,
+            Token::EOF,
+            Token::Newline,
+        ])
+        .include(),
+    ) {
+        let (src, tokens) = tokens.until_or_end(
+            &Or::from(vec![
+                Token::BlockBracketStart,
+                Token::UnderScore,
+                Token::Asterisk,
+                Token::BackQuote,
+                Token::ExclamationMark,
+                Token::EOF,
+                Token::Newline,
+            ])
+            .leave(),
+        )?;
 
-    let (head, tokens) = if let Ok(_) = tokens.next_is_or_ignore(&vec![Token::EOF, Token::Newline])
-    {
-        // next value is end token
-        Err(ScannerError::end())
-    } else if let Ok((find_list, tokens)) = tokens.next_is_or_ignore(&reserved_tokens) {
-        // next value is reserved token
-        Ok((find_list, tokens))
-    } else if let Some(h) = tokens.head() {
-        Ok((h, tokens.tail()))
+        let c = S::cons(head, src).chmop();
+        Ok((Span::text(c.show()), tokens))
     } else {
-        // next value is nothing
-        Err(ScannerError::end())
-    }?;
-
-    let (src, tokens) = if let Ok(result) = tokens.to_somewhere_leave(&reserved_tokens) {
-        result
-    } else {
-        tokens.to_end()
-    };
-
-    let src = S::cons(head.clone(), src);
-    let chmoped_text = src.chmop();
-    if chmoped_text.length() == 0 {
-        // only space
-        Ok((Span::text(src.show()), tokens))
-    } else {
-        Ok((Span::text(chmoped_text.show()), tokens))
+        let (src, tokens) = tokens.until_or_end(
+            &Or::from(vec![
+                Token::BlockBracketStart,
+                Token::UnderScore,
+                Token::Asterisk,
+                Token::BackQuote,
+                Token::ExclamationMark,
+                Token::EOF,
+                Token::Newline,
+            ])
+            .leave(),
+        )?;
+        let c = src.chmop();
+        Ok((Span::text(c.show()), tokens))
     }
 }
 
@@ -68,7 +74,7 @@ mod test {
             text(&crate::tokenize::parse("hello or [Rust]").unwrap()),
             Ok((
                 Span::text("hello or"),
-                &S::from_vector(vec![
+                &S::from(vec![
                     Token::BlockBracketStart,
                     Token::text("Rust"),
                     Token::BlockBracketEnd,

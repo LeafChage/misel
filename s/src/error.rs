@@ -1,4 +1,3 @@
-use super::S;
 use std::fmt;
 
 pub type Result<T> = std::result::Result<T, ScannerError>;
@@ -9,15 +8,9 @@ pub struct ScannerError {
 }
 
 impl ScannerError {
-    pub fn unexpected(expected: &impl fmt::Debug, unexpected: &impl fmt::Debug) -> Self {
-        ScannerError {
-            msg: format!("expected: {:?}, unexpected: {:?}", expected, unexpected),
-        }
-    }
-
-    pub fn not_found<T>(expected: &S<T>) -> Self
+    pub fn not_found<T>(expected: &T) -> Self
     where
-        T: fmt::Debug + Eq + Clone,
+        T: fmt::Debug,
     {
         ScannerError {
             msg: format!("not found {:?}", expected),

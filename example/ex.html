@@ -18,8 +18,7 @@ h1 {
 }
 
 h2 {
-    border-bottom: solid 1px gray;
-}
+border-bottom: solid 1px gray; }
 
 h3 {
     text-decoration: underline;
@@ -41,6 +40,17 @@ main {
     margin: 0 auto;
 }
 
+
+table > tbody > tr > th {
+    padding: 10px;
+    border-bottom: solid 4px #808080;
+}
+
+table > tbody > tr > td {
+    padding: 10px;
+    border-bottom: solid 1px #808080;
+}
+
     </style>
     <body>
     <main>
@@ -49,10 +59,30 @@ main {
 </hr>
 <p></p>
 <h2>Profile</h2>
-<h3>Name</h3>
-<p>Takaya Kusanagi.</p>
-<p></p>
-<p>Please call me chage.</p>
+<table>
+<tr>
+<th> key      </th>
+<th> value                                       </th></tr>
+
+<tr>
+<td> Name</td>
+<td> Takaya Kusanagi</td></tr>
+<tr>
+<td> Nickname</td>
+<td> LeafChage</td></tr>
+<tr>
+<td> Birthday</td>
+<td> 1995/10/8</td></tr>
+<tr>
+<td> Location</td>
+<td> Tokyo</td></tr>
+<tr>
+<td> GitHub</td>
+<td><a href="https://github.com/LeafChage">LeafChage</a></td></tr>
+<tr>
+<td> Twitter</td>
+<td><a href="https://twitter.com/kusachage">@kusachage</a></td></tr>
+</table>
 <p></p>
 <h2>Skill</h2>
 <h3>Golang</h3>
@@ -78,7 +108,7 @@ main {
 <h3><a href="https://www.npmjs.com/package/vivox-token">vivox-token</a></h3>
 <p>Makeing VAT for typescript and javascript.</p>
 <p></p>
-<h3><a href="https://github.com/LeafChage/egak">egak</a></h3>
+<h3><a href="https://crates.io/crates/egak">egak</a></h3>
 <p>Sample image generator</p>
 <p></p>
 <p></p>
@@ -86,11 +116,7 @@ main {
 <p>Structured Logging for C#</p>
 <p></p>
 <h3><a href="https://github.com/LeafChage/misel">misel</a></h3>
-<p>Comming soon.</p>
-<p></p>
-<p>This page is parsed by misel.</p>
-<p></p>
-<p>This parse from markdown to html, and generate the slide.</p>
+<p>This page is parsed from markdown by misel.</p>
 <p></p>
 <p></p>
     </main>

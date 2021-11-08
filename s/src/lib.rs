@@ -1,6 +1,7 @@
 mod error;
 mod list;
-mod scanner;
+mod target;
 
 pub use error::{Result, ScannerError};
 pub use list::S;
+pub use target::{And, Mono, Or, OrAnd};

@@ -1,5 +1,3 @@
-#[macro_use]
-extern crate combine;
 extern crate s;
 
 pub mod block;
@@ -64,32 +62,32 @@ Do you like it?.
 "##
         )
         .unwrap(),
-        S::from_vector(vec![
-            Block::Header(1, S::from_vector(vec![Span::text("Portfolio")])),
+        S::from(vec![
+            Block::Header(1, S::from(vec![Span::text("Portfolio")])),
             Block::HorizontalRules,
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("Name")])),
+            Block::Header(2, S::from(vec![Span::text("Name")])),
             Block::Vanilla(S::unit(Span::emphasis(EmphasisType::Emphasis, "LeafChage"))),
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("My favorite code")])),
+            Block::Header(2, S::from(vec![Span::text("My favorite code")])),
             Block::CodeBlock(
                 String::from("js"),
                 Span::text("console.log(\"hello world\");\n")
             ),
             Block::Vanilla(S::unit(Span::text("Do you like it?."))),
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("Backquote")])),
+            Block::Header(2, S::from(vec![Span::text("Backquote")])),
             Block::Backquote(1, S::unit(Span::text("hello world"))),
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("Like Food")])),
+            Block::Header(2, S::from(vec![Span::text("Like Food")])),
             Block::List(List::new(
                 ListKind::Unordered,
-                S::from_vector(vec![
+                S::from(vec![
                     ListLine::new(
                         S::unit(Span::text("Fruit")),
                         List::new(
                             ListKind::Ordered,
-                            S::from_vector(vec![
+                            S::from(vec![
                                 ListLine::new(S::unit(Span::text("Apple")), List::nil()),
                                 ListLine::new(S::unit(Span::text("Orange")), List::nil()),
                                 ListLine::new(
@@ -103,32 +101,32 @@ Do you like it?.
                 ])
             )),
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("Image")])),
-            Block::Vanilla(S::from_vector(vec![Span::image(
+            Block::Header(2, S::from(vec![Span::text("Image")])),
+            Block::Vanilla(S::from(vec![Span::image(
                 "image",
                 "https://avatars.githubusercontent.com/u/18657444?s=48&v=4"
             )])),
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("Link")])),
-            Block::Vanilla(S::from_vector(vec![Span::link(
+            Block::Header(2, S::from(vec![Span::text("Link")])),
+            Block::Vanilla(S::from(vec![Span::link(
                 "misel",
                 "https://github.com/LeafChage/misel"
             )])),
             Block::Vanilla(S::Nil),
-            Block::Header(2, S::from_vector(vec![Span::text("Table")])),
+            Block::Header(2, S::from(vec![Span::text("Table")])),
             Block::Table(
-                S::from_vector(vec![
+                S::from(vec![
                     Span::text("header1"),
                     Span::text("header2"),
                     Span::text("header3"),
                 ]),
-                S::from_vector(vec![
-                    S::from_vector(vec![
+                S::from(vec![
+                    S::from(vec![
                         S::unit(Span::text("body11")),
                         S::unit(Span::emphasis(EmphasisType::Emphasis, "body12")),
                         S::unit(Span::text("body13")),
                     ]),
-                    S::from_vector(vec![
+                    S::from(vec![
                         S::unit(Span::text("body21")),
                         S::unit(Span::text("body22")),
                         S::unit(Span::text("body23")),

@@ -1,11 +1,11 @@
 use super::super::span::Span;
 use crate::token_list::TokenList;
 use crate::tokenize::Token;
-use s::{Result, S};
+use s::{Mono, Result, S};
 
 pub fn code(tokens: &S<Token>) -> Result<(Span, &S<Token>)> {
-    let (_, tokens) = tokens.next_is_ignore(Token::BackQuote)?;
-    let (code, tokens) = tokens.until_ignore(Token::BackQuote)?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::BackQuote).ignore())?;
+    let (code, tokens) = tokens.until(&Mono::new(Token::BackQuote).ignore())?;
     Ok((Span::code(code.show()), tokens))
 }
 

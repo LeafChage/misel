@@ -1,15 +1,12 @@
-use crate::s::S;
-use combine::EasyParser;
+use crate::s::{Result, S};
 mod parser;
 mod token;
 
 pub use token::Token;
 
-pub fn parse(
-    src: &str,
-) -> Result<S<Token>, combine::easy::Errors<char, &str, combine::stream::PointerOffset<str>>> {
+pub fn parse(src: &str) -> Result<S<Token>> {
     println!("[Tokenize]>>>");
-    let (tokens, _) = parser::parse().easy_parse(src)?;
+    let tokens = parser::parse(&S::from(src))?;
     println!("<<<[Tokenize]");
     Ok(tokens)
 }

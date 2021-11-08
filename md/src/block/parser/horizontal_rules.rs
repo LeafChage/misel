@@ -1,35 +1,41 @@
 use super::super::block::Block;
 use crate::tokenize::Token;
-use s::{Result, ScannerError, S};
+use s::{And, Mono, Result, ScannerError, S};
 
 fn horizontal_rules_with_target(
     tokens: &S<Token>,
     horizontal_token: Token,
     devide_space: bool,
 ) -> Result<(Block, &S<Token>)> {
-    let (_, tokens) = tokens.next_are_ignore(&S::from_vector(if devide_space {
-        vec![
-            horizontal_token.clone(),
-            Token::Space,
-            horizontal_token.clone(),
-            Token::Space,
-            horizontal_token.clone(),
-        ]
-    } else {
-        vec![
-            horizontal_token.clone(),
-            horizontal_token.clone(),
-            horizontal_token.clone(),
-        ]
-    }))?;
+    let (_, tokens) = tokens.next(
+        &And::from(if devide_space {
+            vec![
+                horizontal_token.clone(),
+                Token::Space,
+                horizontal_token.clone(),
+                Token::Space,
+                horizontal_token.clone(),
+            ]
+        } else {
+            vec![
+                horizontal_token.clone(),
+                horizontal_token.clone(),
+                horizontal_token.clone(),
+            ]
+        })
+        .ignore(),
+    )?;
 
-    let (_, tokens) = tokens.many_ignore(&S::from_vector(if devide_space {
-        vec![Token::Space, horizontal_token]
-    } else {
-        vec![horizontal_token]
-    }))?;
+    let (_, _, tokens) = tokens.many(
+        &And::from(if devide_space {
+            vec![Token::Space, horizontal_token]
+        } else {
+            vec![horizontal_token]
+        })
+        .ignore(),
+    )?;
 
-    let (_, tokens) = tokens.next_is_ignore(Token::Newline)?;
+    let (_, tokens) = tokens.next(&Mono::new(Token::Newline).ignore())?;
     Ok((Block::HorizontalRules, tokens))
 }
 
@@ -47,7 +53,7 @@ pub fn horizontal_rules(tokens: &S<Token>) -> Result<(Block, &S<Token>)> {
     } else if let Ok(v) = horizontal_rules_with_target(tokens, Token::UnderScore, false) {
         Ok(v)
     } else {
-        Err(ScannerError::not_found(&S::from_vector(vec![
+        Err(ScannerError::not_found(&S::from(vec![
             Token::Asterisk,
             Token::UnderScore,
             Token::Hyphen,
